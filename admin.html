@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ก๊วนเก๋าTeen - ระบบจัดการแอดมิน</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-black: #0a0a0a; --bg-dark: #111111; --bg-card: rgba(20, 20, 20, 0.85);
+      --pink: #ff1493; --pink-light: #ff69b4; --pink-dark: #c71585;
+      --yellow: #ffd700; --yellow-light: #ffec8b;
+      --blue: #00bfff; --blue-dark: #009acd;
+      --white: #ffffff; --gray: #888888; --gray-light: #cccccc;
+      --green: #39ff14; --orange: #ff8c00; --red: #ff4444; --purple: #9d4edd;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Kanit', sans-serif; background: var(--bg-black);
+      min-height: 100vh; color: var(--white); overflow-x: hidden;
+    }
+    .bg-poster {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+      background: url('https://kimi-web-img.moonshot.cn/prod-data/online-image/search-upload/d8j75m9jj5k073unoj6g') center center / cover no-repeat;
+      opacity: 0.35;
+    }
+    .bg-poster::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(3px);
+    }
+    .bg-grid {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0; opacity: 0.03;
+      background-image: linear-gradient(90deg, var(--pink) 1px, transparent 1px), linear-gradient(0deg, var(--pink) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    .container { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+    /* LOGIN */
+    .login-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.92); z-index: 10000;
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+    .login-overlay.hidden { display: none !important; }
+    .login-box {
+      background: linear-gradient(135deg, rgba(20,20,20,0.95), rgba(30,30,30,0.95));
+      border: 3px solid var(--pink); border-radius: 24px;
+      padding: 40px 35px; max-width: 420px; width: 90%;
+      text-align: center; position: relative; overflow: hidden;
+      box-shadow: 0 0 60px rgba(255,20,147,0.3);
+    }
+    .login-box::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--pink), var(--yellow), var(--blue), var(--pink));
+      background-size: 300% 100%; animation: gradientSlide 3s ease infinite;
+    }
+    @keyframes gradientSlide { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    .login-box .logo { font-size: 3.5rem; margin-bottom: 10px; animation: spinShuttle 2s ease-in-out infinite; }
+    @keyframes spinShuttle { 0%,100% { transform: rotate(-15deg); } 50% { transform: rotate(15deg); } }
+    .login-box h1 { font-size: 1.8rem; font-weight: 900; color: var(--yellow); text-shadow: 2px 2px 0 var(--pink); margin-bottom: 6px; }
+    .login-box .subtitle { color: var(--pink-light); font-size: 1rem; margin-bottom: 25px; }
+    .login-box .lock-icon { font-size: 3rem; margin-bottom: 15px; color: var(--orange); }
+    .login-input {
+      width: 100%; padding: 14px 18px; border: 2px solid rgba(255,20,147,0.3);
+      border-radius: 12px; font-family: 'Kanit', sans-serif; font-size: 1.1rem;
+      background: var(--bg-dark); color: var(--white); margin-bottom: 15px;
+      text-align: center; letter-spacing: 3px; transition: all 0.3s;
+    }
+    .login-input:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 20px rgba(255,20,147,0.3); }
+    .login-input::placeholder { color: var(--gray); letter-spacing: 1px; }
+    .login-btn {
+      width: 100%; padding: 14px; border: none; border-radius: 12px;
+      font-family: 'Kanit', sans-serif; font-size: 1.1rem; font-weight: 700;
+      cursor: pointer; background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      color: var(--white); border: 2px solid var(--yellow);
+      box-shadow: 0 5px 25px rgba(255,20,147,0.4); transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 35px rgba(255,20,147,0.6); }
+    .login-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s; }
+    .login-btn:hover::after { left: 100%; }
+    .login-error { color: var(--red); font-size: 0.9rem; margin-top: 12px; font-weight: 600; opacity: 0; transition: opacity 0.3s; }
+    .login-error.show { opacity: 1; }
+    .login-hint { color: var(--gray); font-size: 0.8rem; margin-top: 15px; }
+    .back-link { display: inline-block; margin-top: 20px; color: var(--pink-light); text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+    .back-link:hover { color: var(--yellow); }
+
+    /* ADMIN HEADER */
+    .admin-header {
+      background: linear-gradient(135deg, rgba(255,20,147,0.3), rgba(157,78,221,0.2));
+      border: 2px solid var(--purple); border-radius: 20px;
+      padding: 25px 20px; margin-bottom: 20px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .admin-header h1 { font-size: 2.2rem; font-weight: 900; color: var(--yellow); text-shadow: 2px 2px 0 var(--pink); margin-bottom: 8px; }
+    .admin-header .badge {
+      display: inline-block; background: linear-gradient(135deg, var(--purple), var(--pink-dark));
+      color: white; padding: 6px 20px; border-radius: 20px;
+      font-size: 0.85rem; font-weight: 600; border: 2px solid var(--yellow);
+    }
+    .admin-logout {
+      position: absolute; top: 15px; right: 15px;
+      background: rgba(255,68,68,0.2); border: 1px solid var(--red);
+      color: var(--red); padding: 6px 14px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      transition: all 0.3s; font-family: 'Kanit', sans-serif;
+    }
+    .admin-logout:hover { background: var(--red); color: var(--white); }
+
+    /* NAV TABS */
+    .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+    .nav-tab {
+      padding: 12px 22px; border: 2px solid var(--purple); border-radius: 25px;
+      font-family: 'Kanit', sans-serif; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: all 0.3s ease; background: var(--bg-card);
+      color: var(--pink-light); position: relative; overflow: hidden;
+    }
+    .nav-tab:hover { background: var(--purple); color: var(--white); transform: translateY(-2px); box-shadow: 0 5px 20px rgba(157,78,221,0.4); }
+    .nav-tab.active { background: linear-gradient(135deg, var(--purple), var(--pink-dark)); color: var(--white); border-color: var(--yellow); box-shadow: 0 0 25px rgba(157,78,221,0.5); }
+    .section { display: none; animation: fadeIn 0.5s ease-out; }
+    .section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-card); border-radius: 20px; padding: 25px;
+      margin-bottom: 20px; border: 2px solid rgba(255,20,147,0.3);
+      position: relative; overflow: hidden; backdrop-filter: blur(5px);
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--pink), var(--yellow), var(--blue), var(--pink));
+      background-size: 300% 100%; animation: gradientSlide 3s ease infinite;
+    }
+    .card-title { font-size: 1.4rem; font-weight: 700; color: var(--yellow); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 2px solid rgba(255,20,147,0.3); }
+
+    /* PLAYER COUNT */
+    .player-count { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .count-box { flex: 1; min-width: 140px; background: linear-gradient(135deg, rgba(255,20,147,0.2), rgba(255,20,147,0.1)); border: 2px solid var(--pink); color: var(--white); padding: 20px; border-radius: 14px; text-align: center; }
+    .count-box.reserve { background: linear-gradient(135deg, rgba(0,191,255,0.2), rgba(0,191,255,0.1)); border-color: var(--blue); }
+    .count-box .number { font-size: 2.5rem; font-weight: 900; display: block; color: var(--yellow); text-shadow: 2px 2px 0 var(--pink); }
+    .count-box.reserve .number { color: var(--blue); text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
+    .count-box .label { font-size: 0.9rem; opacity: 0.9; font-weight: 600; }
+    .count-box .limit { font-size: 0.8rem; opacity: 0.7; margin-top: 4px; color: var(--gray); }
+
+    /* PLAYER LIST */
+    .player-list { display: grid; gap: 10px; }
+    .player-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--bg-dark); border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+    .player-item:hover { border-color: var(--pink); transform: translateX(5px); box-shadow: 0 5px 15px rgba(255,20,147,0.2); }
+    .player-item.reserve-item { border-color: rgba(0,191,255,0.3); background: linear-gradient(135deg, rgba(0,191,255,0.1), var(--bg-dark)); }
+    .player-item.reserve-item:hover { border-color: var(--blue); box-shadow: 0 5px 15px rgba(0,191,255,0.2); }
+    .player-info { display: flex; align-items: center; gap: 12px; }
+    .player-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--pink), var(--pink-dark)); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; border: 2px solid var(--yellow); box-shadow: 0 0 10px rgba(255,20,147,0.3); flex-shrink: 0; }
+    .player-details h4 { font-size: 1rem; font-weight: 600; color: var(--white); }
+    .player-details p { font-size: 0.85rem; color: var(--gray); }
+    .level-badge { padding: 4px 12px; border-radius: 16px; font-size: 0.8rem; font-weight: 700; border: 2px solid; flex-shrink: 0; }
+    .level-bg { background: rgba(57,255,20,0.2); color: var(--green); border-color: var(--green); }
+    .level-n { background: rgba(255,215,0,0.2); color: var(--yellow); border-color: var(--yellow); }
+    .level-s { background: rgba(255,20,147,0.2); color: var(--pink-light); border-color: var(--pink); }
+    .level-p { background: rgba(0,191,255,0.2); color: var(--blue); border-color: var(--blue); }
+    .player-actions { display: flex; gap: 8px; align-items: center; }
+
+    /* BUTTONS */
+    .btn { padding: 8px 16px; border: none; border-radius: 10px; font-family: 'Kanit', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; position: relative; overflow: hidden; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: linear-gradient(135deg, var(--pink), var(--pink-dark)); color: var(--white); border: 2px solid var(--yellow); box-shadow: 0 4px 15px rgba(255,20,147,0.4); }
+    .btn-success { background: linear-gradient(135deg, var(--green), #2eb82e); color: var(--bg-black); border: 2px solid var(--white); box-shadow: 0 4px 15px rgba(57,255,20,0.3); }
+    .btn-danger { background: linear-gradient(135deg, var(--red), #cc0000); color: var(--white); border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 4px 15px rgba(255,68,68,0.3); }
+    .btn-warning { background: linear-gradient(135deg, var(--orange), #ff6b00); color: var(--white); border: 2px solid var(--yellow); }
+    .btn-purple { background: linear-gradient(135deg, var(--purple), #7b2cbf); color: var(--white); border: 2px solid var(--yellow); box-shadow: 0 4px 15px rgba(157,78,221,0.4); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+    .btn-small { padding: 6px 12px; font-size: 0.8rem; }
+    .btn-large { padding: 14px 28px; font-size: 1rem; }
+
+    /* FORM */
+    .form-group { display: flex; flex-direction: column; margin-bottom: 16px; }
+    .form-group label { font-weight: 600; margin-bottom: 6px; color: var(--pink-light); font-size: 0.95rem; }
+    .form-group label span { color: var(--red); }
+    .form-group input, .form-group select { padding: 12px 14px; border: 2px solid rgba(255,20,147,0.3); border-radius: 10px; font-family: 'Kanit', sans-serif; font-size: 1rem; transition: all 0.3s; background: var(--bg-dark); color: var(--white); }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 15px rgba(255,20,147,0.2); }
+    .form-group input::placeholder { color: var(--gray); }
+
+    .level-select { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+    .level-option { padding: 16px; border: 3px solid rgba(255,255,255,0.1); border-radius: 14px; cursor: pointer; text-align: center; transition: all 0.3s; background: var(--bg-dark); position: relative; overflow: hidden; }
+    .level-option:hover { transform: translateY(-3px); border-color: var(--white); box-shadow: 0 8px 25px rgba(0,0,0,0.5); }
+    .level-option.selected { border-color: var(--yellow); box-shadow: 0 0 25px rgba(255,215,0,0.3); }
+    .level-option[data-level="BG"] { border-color: rgba(57,255,20,0.3); }
+    .level-option[data-level="BG"]:hover, .level-option[data-level="BG"].selected { border-color: var(--green); box-shadow: 0 0 20px rgba(57,255,20,0.3); }
+    .level-option[data-level="BG"] .level-code { color: var(--green); }
+    .level-option[data-level="N"] { border-color: rgba(255,215,0,0.3); }
+    .level-option[data-level="N"]:hover, .level-option[data-level="N"].selected { border-color: var(--yellow); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+    .level-option[data-level="N"] .level-code { color: var(--yellow); }
+    .level-option[data-level="S"] { border-color: rgba(255,20,147,0.3); }
+    .level-option[data-level="S"]:hover, .level-option[data-level="S"].selected { border-color: var(--pink); box-shadow: 0 0 20px rgba(255,20,147,0.3); }
+    .level-option[data-level="S"] .level-code { color: var(--pink); }
+    .level-option[data-level="P"] { border-color: rgba(0,191,255,0.3); }
+    .level-option[data-level="P"]:hover, .level-option[data-level="P"].selected { border-color: var(--blue); box-shadow: 0 0 20px rgba(0,191,255,0.3); }
+    .level-option[data-level="P"] .level-code { color: var(--blue); }
+    .level-option .level-code { font-size: 2rem; font-weight: 900; display: block; margin-bottom: 6px; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
+    .level-option .level-name { font-size: 0.95rem; font-weight: 700; color: var(--white); }
+    .level-option .level-icon { font-size: 1.6rem; margin-bottom: 6px; }
+
+    /* ADMIN PANELS */
+    .admin-panel { background: linear-gradient(135deg, rgba(157,78,221,0.15), rgba(255,20,147,0.1)); border: 2px solid var(--purple); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+    .admin-panel-title { font-size: 1.1rem; font-weight: 700; color: var(--purple); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+    .admin-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .admin-control-group { display: flex; flex-direction: column; gap: 8px; }
+    .admin-control-group label { font-weight: 600; font-size: 0.9rem; color: var(--yellow-light); }
+    .admin-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+    .admin-buttons .btn { flex: 1; min-width: 120px; justify-content: center; }
+
+    /* COURTS */
+    .courts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+    .court-card { background: var(--bg-card); border-radius: 18px; overflow: hidden; border: 2px solid rgba(255,255,255,0.1); position: relative; }
+    .court-card.active-court { border-color: var(--pink); box-shadow: 0 0 25px rgba(255,20,147,0.2); }
+    .court-header { background: linear-gradient(135deg, var(--pink), var(--pink-dark)); color: var(--white); padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; }
+    .court-header h3 { font-size: 1.2rem; font-weight: 700; }
+    .court-number { background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; font-size: 0.85rem; font-weight: 600; }
+    .court-body { padding: 20px; background: linear-gradient(90deg, transparent 49.5%, var(--pink) 49.5%, var(--pink) 50.5%, transparent 50.5%), linear-gradient(0deg, transparent 49.5%, var(--blue) 49.5%, var(--blue) 50.5%, transparent 50.5%); background-size: 100% 100%, 100% 100%; background-position: center; background-repeat: no-repeat; opacity: 0.9; }
+    .court-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; min-height: 180px; }
+    .court-side { background: rgba(10,10,10,0.95); border-radius: 12px; padding: 15px; text-align: center; border: 2px solid var(--pink); position: relative; }
+    .court-side.right-side { border-color: var(--blue); }
+    .court-side .side-label { font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .court-side.left-side .side-label { color: var(--pink); }
+    .court-side.right-side .side-label { color: var(--blue); }
+    .court-player { padding: 10px; margin: 6px 0; background: rgba(255,255,255,0.05); border-radius: 8px; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255,255,255,0.1); }
+    .court-player.empty { color: var(--gray); font-style: italic; min-height: 40px; }
+    .court-actions { display: flex; gap: 10px; padding: 15px 18px; background: var(--bg-dark); border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
+    .court-actions .btn { flex: 1; justify-content: center; min-width: 100px; font-size: 0.85rem; }
+    .stay-badge { position: absolute; top: 8px; right: 8px; background: linear-gradient(135deg, var(--yellow), var(--orange)); color: var(--bg-black); padding: 3px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+    .new-badge { position: absolute; top: 8px; left: 8px; background: linear-gradient(135deg, var(--blue), var(--blue-dark)); color: var(--white); padding: 3px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
+
+    .waiting-card { background: var(--bg-card); border-radius: 18px; padding: 25px; margin-bottom: 20px; border: 2px solid rgba(255,215,0,0.3); backdrop-filter: blur(5px); }
+    .waiting-title { font-size: 1.2rem; font-weight: 700; color: var(--yellow); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    .waiting-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+    .waiting-item { background: var(--bg-dark); border-radius: 12px; padding: 14px 10px; text-align: center; border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s; position: relative; cursor: pointer; }
+    .waiting-item:hover { border-color: var(--pink); transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255,20,147,0.2); }
+    .waiting-person { font-size: 2rem; margin-bottom: 8px; }
+    .waiting-name { font-weight: 700; font-size: 0.9rem; color: var(--white); margin-bottom: 4px; }
+    .waiting-level { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+    .waiting-empty { text-align: center; padding: 30px; color: var(--gray); font-size: 1rem; }
+
+    /* CHECK-IN */
+    .checkin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    .checkin-item { background: var(--bg-dark); padding: 16px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.3s; text-align: center; }
+    .checkin-item:hover { border-color: var(--pink); }
+    .checkin-item.checked { border-color: var(--green); background: linear-gradient(135deg, rgba(57,255,20,0.1), var(--bg-dark)); box-shadow: 0 0 15px rgba(57,255,20,0.2); }
+    .checkin-item.checked .checkin-status { color: var(--green); font-weight: 700; }
+    .checkin-status { margin-top: 8px; font-size: 0.9rem; color: var(--gray); }
+
+    /* COSTS */
+    .cost-card { background: linear-gradient(135deg, rgba(57,255,20,0.1), rgba(57,255,20,0.05)); border: 2px solid var(--green); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+    .cost-card-title { font-size: 1.2rem; font-weight: 700; color: var(--green); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+    .cost-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 15px; }
+    .cost-result { background: var(--bg-dark); border-radius: 14px; padding: 20px; text-align: center; border: 2px solid var(--yellow); box-shadow: 0 0 25px rgba(255,215,0,0.1); }
+    .cost-result .total-label { font-size: 0.95rem; color: var(--gray); margin-bottom: 6px; }
+    .cost-result .total-amount { font-size: 2.2rem; font-weight: 900; color: var(--yellow); text-shadow: 2px 2px 0 var(--pink); }
+    .cost-result .per-person { font-size: 1.3rem; font-weight: 700; color: var(--green); margin-top: 12px; }
+    .cost-result .detail { font-size: 0.9rem; color: var(--gray); margin-top: 10px; }
+    .cost-breakdown { display: grid; gap: 8px; margin-top: 15px; }
+    .cost-item { display: flex; justify-content: space-between; padding: 10px 14px; background: var(--bg-dark); border-radius: 8px; font-size: 0.95rem; border: 1px solid rgba(255,255,255,0.1); }
+    .cost-item .label { color: var(--gray); }
+    .cost-item .value { font-weight: 700; color: var(--white); }
+
+    /* ANNOUNCEMENTS */
+    .announcement-form { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+    .announcement-form input { flex: 1; min-width: 200px; padding: 12px 16px; border: 2px solid rgba(255,20,147,0.3); border-radius: 10px; font-family: 'Kanit', sans-serif; font-size: 1rem; background: var(--bg-dark); color: var(--white); }
+    .announcement-list { display: grid; gap: 10px; }
+    .announcement-item { background: var(--bg-dark); padding: 14px 18px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid var(--pink); }
+    .announcement-item.venue { border-left-color: var(--green); background: linear-gradient(135deg, rgba(57,255,20,0.05), var(--bg-dark)); }
+    .announcement-item .time { font-size: 0.8rem; color: var(--gray); }
+
+    /* TOGGLE */
+    .main-toggle-panel { background: linear-gradient(135deg, rgba(255,20,147,0.2), rgba(0,191,255,0.1)); border: 2px solid var(--pink); border-radius: 14px; padding: 16px 20px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .main-toggle-panel .toggle-info { display: flex; align-items: center; gap: 10px; }
+    .main-toggle-panel .toggle-status { font-size: 1.1rem; font-weight: 700; }
+    .main-toggle-panel .toggle-status.open { color: var(--green); }
+    .main-toggle-panel .toggle-status.closed { color: var(--red); }
+    .toggle-switch { position: relative; width: 70px; height: 36px; background: var(--red); border-radius: 18px; cursor: pointer; transition: all 0.3s; border: 2px solid rgba(255,255,255,0.2); }
+    .toggle-switch.on { background: var(--green); }
+    .toggle-switch .toggle-knob { position: absolute; top: 2px; left: 2px; width: 28px; height: 28px; background: white; border-radius: 50%; transition: all 0.3s; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+    .toggle-switch.on .toggle-knob { left: 36px; }
+
+    /* MODAL */
+    .swap-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+    .swap-modal-overlay.show { display: flex; }
+    .swap-modal { background: var(--bg-card); border-radius: 18px; padding: 25px; max-width: 450px; width: 90%; max-height: 80vh; overflow-y: auto; border: 2px solid var(--pink); box-shadow: 0 15px 50px rgba(0,0,0,0.5); }
+    .swap-modal h3 { font-size: 1.2rem; color: var(--yellow); margin-bottom: 18px; text-align: center; }
+    .swap-options { display: grid; gap: 10px; margin-bottom: 20px; }
+    .swap-option { padding: 12px 16px; border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; background: var(--bg-dark); }
+    .swap-option:hover { border-color: var(--pink); background: rgba(255,20,147,0.1); }
+    .swap-option.selected { border-color: var(--yellow); background: rgba(255,215,0,0.1); }
+    .swap-modal-buttons { display: flex; gap: 10px; }
+    .swap-modal-buttons .btn { flex: 1; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(120px); background: var(--bg-dark); color: var(--white); padding: 16px 30px; border-radius: 12px; font-weight: 700; z-index: 2000; opacity: 0; transition: all 0.4s ease; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 2px solid var(--pink); font-size: 1rem; max-width: 90%; text-align: center; }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+    .toast.warning { border-color: var(--orange); color: var(--orange); }
+
+    .text-center { text-align: center; }
+    .mb-2 { margin-bottom: 15px; }
+    .rule-box { background: linear-gradient(135deg, rgba(0,191,255,0.1), rgba(0,191,255,0.05)); border: 1px solid var(--blue); border-radius: 12px; padding: 15px; margin-bottom: 15px; font-size: 0.9rem; color: var(--blue); line-height: 1.7; }
+    .rule-box strong { color: var(--yellow); }
+    .balance-info { background: linear-gradient(135deg, rgba(255,20,147,0.1), rgba(255,20,147,0.05)); border: 1px solid var(--pink); border-radius: 12px; padding: 15px; margin-bottom: 15px; font-size: 0.9rem; color: var(--pink-light); line-height: 1.7; }
+
+    @media (max-width: 768px) {
+      .login-box { padding: 30px 20px; }
+      .login-box h1 { font-size: 1.5rem; }
+      .admin-header h1 { font-size: 1.8rem; }
+      .courts-grid { grid-template-columns: 1fr; }
+      .court-sides { gap: 15px; }
+      .nav-tab { padding: 10px 16px; font-size: 0.85rem; }
+      .waiting-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+      .admin-controls { grid-template-columns: 1fr; }
+      .cost-form { grid-template-columns: 1fr; }
+      .level-select { grid-template-columns: 1fr 1fr; }
+      .main-toggle-panel { flex-direction: column; text-align: center; }
+      .checkin-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+      <div class="logo">🏸</div>
+      <h1>ก๊วนเก๋าTeen</h1>
+      <p class="subtitle">ระบบจัดการแอดมิน</p>
+      <div class="lock-icon">🔐</div>
+      <p style="color: var(--gray); margin-bottom: 15px; font-size: 0.95rem;">กรุณาใส่รหัสผ่านเพื่อเข้าสู่ระบบ</p>
+      <input type="password" id="adminPassword" class="login-input" placeholder="รหัสผ่าน" onkeypress="if(event.key==='Enter')login()">
+      <button class="login-btn" onclick="login()">🔓 เข้าสู่ระบบ</button>
+      <p id="loginError" class="login-error">❌ รหัสผ่านไม่ถูกต้อง</p>
+      <p class="login-hint">หากลืมรหัสผ่าน ติดต่อผู้ดูแลระบบ</p>
+      <a href="register.html" class="back-link">← กลับไปหน้าลงชื่อ</a>
+    </div>
+  </div>
+
+  <div class="bg-poster"></div>
+  <div class="bg-grid"></div>
+
+  <div class="container" id="adminContainer" style="display: none;">
+    <div class="admin-header">
+      <button class="admin-logout" onclick="logout()">🚪 ออกจากระบบ</button>
+      <h1>🔐 ระบบจัดการแอดมิน</h1>
+      <div class="badge">🏸 ก๊วนเก๋าTeen | แอดมินโหมด</div>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showSection('register')">📝 ลงชื่อ</button>
+      <button class="nav-tab" onclick="showSection('players')">👥 รายชื่อ</button>
+      <button class="nav-tab" onclick="showSection('courts')">🏟️ คอร์ท</button>
+      <button class="nav-tab" onclick="showSection('checkin')">✅ เช็คชื่อ</button>
+      <button class="nav-tab" onclick="showSection('costs')">💰 ค่าใช้จ่าย</button>
+      <button class="nav-tab" onclick="showSection('announcements')">📢 ประกาศ</button>
+    </div>
+
+    <div id="register" class="section active">
+      <div class="card">
+        <div class="card-title">📝 ลงชื่อผู้เล่น (แอดมิน)</div>
+        <div class="main-toggle-panel">
+          <div class="toggle-info">
+            <span style="font-size: 1.3rem;">🔒</span>
+            <div>
+              <div style="font-weight: 700; font-size: 1rem;">สถานะรับผู้เล่นหลัก</div>
+              <div class="toggle-status" id="mainToggleStatus">กำลังโหลด...</div>
+            </div>
+          </div>
+          <div class="toggle-switch" id="mainToggleSwitch" onclick="toggleMainRegistration()">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+        <div class="player-count">
+          <div class="count-box">
+            <span class="number" id="mainCount">0</span>
+            <span class="label">ผู้เล่นหลัก</span>
+            <span class="limit">/ <span id="maxMainLabel">18</span> คน</span>
+          </div>
+          <div class="count-box reserve">
+            <span class="number" id="reserveCount">0</span>
+            <span class="label">สำรอง</span>
+            <span class="limit">/ 4 คน</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>ชื่อ <span>*</span></label>
+          <input type="text" id="regName" placeholder="กรอกชื่อ">
+        </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label>ระดับการเล่น <span>*</span></label>
+          <div class="level-select">
+            <div class="level-option" data-level="BG" onclick="selectLevel('BG')"><div class="level-icon">🌱</div><span class="level-code">BG</span><span class="level-name">Beginner</span></div>
+            <div class="level-option" data-level="N" onclick="selectLevel('N')"><div class="level-icon">⭐</div><span class="level-code">N</span><span class="level-name">Newbie</span></div>
+            <div class="level-option" data-level="S" onclick="selectLevel('S')"><div class="level-icon">🎯</div><span class="level-code">S</span><span class="level-name">Starter</span></div>
+            <div class="level-option" data-level="P" onclick="selectLevel('P')"><div class="level-icon">👑</div><span class="level-code">P</span><span class="level-name">Pre-Pro</span></div>
+          </div>
+          <input type="hidden" id="regLevel" value="">
+        </div>
+        <div class="text-center">
+          <button class="btn btn-primary btn-large" onclick="registerPlayer()"><span>🏸</span> ลงชื่อเล่น</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="players" class="section">
+      <div class="card">
+        <div class="card-title">👥 รายชื่อผู้เล่นทั้งหมด</div>
+        <div class="player-count mb-2">
+          <div class="count-box"><span class="number" id="mainCount2">0</span><span class="label">ผู้เล่นหลัก</span><span class="limit">/ <span id="maxMainLabel2">18</span> คน</span></div>
+          <div class="count-box reserve"><span class="number" id="reserveCount2">0</span><span class="label">สำรอง</span><span class="limit">/ 4 คน</span></div>
+        </div>
+        <div id="playerList" class="player-list"></div>
+      </div>
+    </div>
+
+    <div id="courts" class="section">
+      <div class="card">
+        <div class="card-title">🏟️ จัดการคอร์ทแบดมินตัน</div>
+        <div class="rule-box">
+          <strong>📋 กติกาการหมุนเวียน:</strong><br>
+          • กด <strong>"ทีมXออก"</strong> = ทีมที่แพ้ต้องออก สุ่มผู้เล่นใหม่เข้าแทน<br>
+          • ทีมที่ชนะ → อยู่เล่นต่ออีก 1 เกม แล้วต้องออกหลังเกมที่ 2 เสมอ<br>
+          • ระดับมือ <strong>เดียวกัน</strong> จะลงสนามเดียวกัน (4 คนระดับเดียวกัน)<br>
+          • มือ P จะถูก <strong>แยกฝั่ง</strong> ไม่ให้อยู่ทีมเดียวกัน<br>
+          • ระบบจะ <strong>พยายามไม่ให้คู่เดิม</strong> อยู่ฝั่งเดียวกันซ้ำ
+        </div>
+        <div class="balance-info">
+          <strong>⚖️ การจัดสมดุล:</strong> ระบบจะพยายามจัดให้ระดับมือใกล้เคียงกันลงสนามเดียวกัน และมือ P จะถูกแยกคนละฝั่ง พร้อมหลีกเลี่ยงคู่เดิมซ้ำ
+        </div>
+        <div class="admin-panel">
+          <div class="admin-panel-title">🔧 แอดมิน: จัดคู่/ย้ายผู้เล่น/สลับฝั่ง</div>
+          <div class="admin-controls">
+            <div class="admin-control-group">
+              <label>เลือกคอร์ท</label>
+              <select id="adminCourtSelect"><option value="">-- เลือกคอร์ท --</option><option value="1">คอร์ท 1</option><option value="2">คอร์ท 2</option><option value="3">คอร์ท 3</option></select>
+            </div>
+            <div class="admin-control-group">
+              <label>เลือกฝั่ง</label>
+              <select id="adminSideSelect"><option value="">-- เลือกฝั่ง --</option><option value="left">ฝั่งซ้าย (ทีม A)</option><option value="right">ฝั่งขวา (ทีม B)</option></select>
+            </div>
+            <div class="admin-control-group">
+              <label>เลือกผู้เล่น</label>
+              <select id="adminPlayerSelect"><option value="">-- เลือกผู้เล่น --</option></select>
+            </div>
+            <div class="admin-control-group">
+              <label>ตำแหน่งในทีม</label>
+              <select id="adminPositionSelect"><option value="0">ตำแหน่ง 1</option><option value="1">ตำแหน่ง 2</option></select>
+            </div>
+          </div>
+          <div class="admin-buttons">
+            <button class="btn btn-primary" onclick="adminAddPlayer()">➕ เพิ่ม/แทนที่</button>
+            <button class="btn btn-warning" onclick="adminSwapSides()">🔄 สลับฝั่ง</button>
+            <button class="btn btn-danger" onclick="adminClearCourt()">🗑️ เคลียร์</button>
+          </div>
+          <div class="admin-buttons" style="margin-top:10px;">
+            <button class="btn btn-success" onclick="adminSwapPlayers()">⇄ สลับผู้เล่น</button>
+            <button class="btn btn-success" onclick="adminMovePlayer()">↔ ย้ายผู้เล่น</button>
+          </div>
+        </div>
+        <div class="text-center mb-2">
+          <button class="btn btn-success btn-large" onclick="randomizeAllCourts()"><span>🎲</span> สุ่มผู้เล่นลงคอร์ททั้งหมด</button>
+          <button class="btn btn-danger btn-large" onclick="resetAllCourts()"><span>🔄</span> รีเซ็ตทุกคอร์ท</button>
+        </div>
+        <div class="waiting-card">
+          <div class="waiting-title">🧍 ผู้เล่นรอลงสนาม</div>
+          <div id="waitingList" class="waiting-grid"></div>
+        </div>
+        <div class="courts-grid" id="courtsGrid"></div>
+      </div>
+    </div>
+
+    <div id="checkin" class="section">
+      <div class="card">
+        <div class="card-title">✅ เช็คชื่อผู้เล่น</div>
+        <div class="text-center mb-2">
+          <button class="btn btn-primary" onclick="checkInAll()"><span>✅</span> เช็คชื่อทั้งหมด</button>
+          <button class="btn btn-danger" onclick="uncheckAll()"><span>❌</span> ยกเลิกเช็คชื่อทั้งหมด</button>
+        </div>
+        <div id="checkinGrid" class="checkin-grid"></div>
+      </div>
+    </div>
+
+    <div id="costs" class="section">
+      <div class="card">
+        <div class="card-title">💰 คำนวณค่าใช้จ่าย</div>
+        <div class="cost-card">
+          <div class="cost-card-title">📝 กรอกค่าใช้จ่าย</div>
+          <div class="cost-form">
+            <div class="form-group"><label>ค่าสนาม (บาท)</label><input type="number" id="costCourt" placeholder="เช่น 1200" min="0"></div>
+            <div class="form-group"><label>ค่าลูกแบด (บาท)</label><input type="number" id="costShuttle" placeholder="เช่น 300" min="0"></div>
+            <div class="form-group"><label>ค่าใช้จ่ายอื่นๆ (บาท)</label><input type="number" id="costOther" placeholder="เช่น 0" min="0" value="0"></div>
+            <div class="form-group"><label>จำนวนคนหาร (คน)</label><input type="number" id="costPeople" placeholder="เช่น 18" min="1"></div>
+          </div>
+          <div class="text-center">
+            <button class="btn btn-success btn-large" onclick="calculateCost()"><span>🧮</span> คำนวณ</button>
+            <button class="btn btn-warning btn-large" onclick="autoFillPeople()"><span>👥</span> ใช้จำนวนคนจริง</button>
+            <button class="btn btn-danger btn-large" onclick="clearCost()"><span>🗑️</span> ล้างข้อมูล</button>
+          </div>
+        </div>
+        <div id="costResult" style="display:none;">
+          <div class="cost-result">
+            <div class="total-label">💰 ค่าใช้จ่ายรวมทั้งหมด</div>
+            <div class="total-amount" id="totalAmount">0 บาท</div>
+            <div class="per-person" id="perPerson">คนละ 0 บาท</div>
+            <div class="detail" id="costDetail">-</div>
+          </div>
+          <div class="cost-breakdown" id="costBreakdown"></div>
+        </div>
+        <div class="cost-card" style="margin-top:20px;">
+          <div class="cost-card-title">📊 ประวัติการคำนวณ</div>
+          <div id="costHistory" class="announcement-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="announcements" class="section">
+      <div class="card">
+        <div class="card-title">📢 กระดานประกาศ</div>
+        <div class="announcement-form">
+          <input type="text" id="announceText" placeholder="พิมพ์ข้อความประกาศ...">
+          <button class="btn btn-primary" onclick="addAnnouncement()"><span>📢</span> ประกาศ</button>
+        </div>
+        <div class="announcement-form">
+          <input type="text" id="venueText" placeholder="ระบุสนาม/คอร์ทที่จะเล่น...">
+          <button class="btn btn-success" onclick="addVenue()"><span>🏟️</span> แจ้งสนาม</button>
+        </div>
+        <div id="announcementList" class="announcement-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="swapModal" class="swap-modal-overlay">
+    <div class="swap-modal">
+      <h3 id="swapModalTitle">เลือกผู้เล่นที่ต้องการสลับ</h3>
+      <div class="swap-options" id="swapOptions"></div>
+      <div class="swap-modal-buttons">
+        <button class="btn btn-primary" onclick="confirmSwap()">ยืนยัน</button>
+        <button class="btn btn-danger" onclick="closeSwapModal()">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ==================== ADMIN PASSWORD ====================
+const ADMIN_PASSWORD = 'badminton2024';
+let isLoggedIn = false;
+
+function login() {
+  const input = document.getElementById('adminPassword').value;
+  if (input === ADMIN_PASSWORD) {
+    isLoggedIn = true;
+    localStorage.setItem('gwAdminLoggedIn', 'true');
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('adminContainer').style.display = 'block';
+    showToast('✅ เข้าสู่ระบบแอดมินสำเร็จ', 'success');
+    initAdmin();
+  } else {
+    const error = document.getElementById('loginError');
+    error.classList.add('show');
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('adminPassword').focus();
+    setTimeout(() => error.classList.remove('show'), 3000);
+  }
+}
+
+function logout() {
+  isLoggedIn = false;
+  localStorage.removeItem('gwAdminLoggedIn');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('adminContainer').style.display = 'none';
+  document.getElementById('adminPassword').value = '';
+}
+
+function checkLogin() {
+  if (localStorage.getItem('gwAdminLoggedIn') === 'true') {
+    isLoggedIn = true;
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('adminContainer').style.display = 'block';
+    initAdmin();
+  }
+}
+
+// ==================== DATA STATE ====================
+const MAX_MAIN = 18;
+const MAX_RESERVE = 4;
+const ABSOLUTE_MAX_MAIN = 24;
+
+let players = JSON.parse(localStorage.getItem('gwPlayers')) || [];
+let courts = JSON.parse(localStorage.getItem('gwCourts')) || [
+  { id: 1, number: '1', left: ['', ''], right: ['', ''], leftStay: false, rightStay: false, gameCount: 0 },
+  { id: 2, number: '2', left: ['', ''], right: ['', ''], leftStay: false, rightStay: false, gameCount: 0 },
+  { id: 3, number: '3', left: ['', ''], right: ['', ''], leftStay: false, rightStay: false, gameCount: 0 }
+];
+let announcements = JSON.parse(localStorage.getItem('gwAnnouncements')) || [];
+let costHistory = JSON.parse(localStorage.getItem('gwCostHistory')) || [];
+let pairHistory = JSON.parse(localStorage.getItem('gwPairHistory')) || {};
+let mainRegistrationOpen = JSON.parse(localStorage.getItem('gwMainOpen')) !== false;
+let currentMaxMain = parseInt(localStorage.getItem('gwMaxMain')) || MAX_MAIN;
+
+const LEVEL_SCORE = { 'BG': 1, 'N': 2, 'S': 3, 'P': 4 };
+const LEVEL_NAMES = { 'BG': 'Beginner', 'N': 'Newbie', 'S': 'Starter', 'P': 'Pre-Pro' };
+const LEVEL_COLORS = { 'BG': 'level-bg', 'N': 'level-n', 'S': 'level-s', 'P': 'level-p' };
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', function() {
+  checkLogin();
+});
+
+function initAdmin() {
+  updateMainToggleUI();
+  updateMaxMainDisplay();
+  updateCounts();
+  renderPlayerList();
+  renderCourts();
+  renderWaitingList();
+  renderCheckIn();
+  renderAnnouncements();
+  renderCostHistory();
+  updateAdminPlayerSelect();
+}
+
+// ==================== NAVIGATION ====================
+function showSection(sectionId) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(sectionId).classList.add('active');
+  event.target.classList.add('active');
+  if (sectionId === 'players') renderPlayerList();
+  if (sectionId === 'courts') { renderCourts(); renderWaitingList(); updateAdminPlayerSelect(); }
+  if (sectionId === 'checkin') renderCheckIn();
+  if (sectionId === 'costs') renderCostHistory();
+  if (sectionId === 'announcements') renderAnnouncements();
+}
+
+// ==================== MAIN REGISTRATION TOGGLE ====================
+function toggleMainRegistration() {
+  mainRegistrationOpen = !mainRegistrationOpen;
+  localStorage.setItem('gwMainOpen', JSON.stringify(mainRegistrationOpen));
+  updateMainToggleUI();
+  showToast(mainRegistrationOpen ? '✅ เปิดรับผู้เล่นหลักแล้ว' : '🔒 ปิดรับผู้เล่นหลักแล้ว - ผู้เล่นใหม่จะเข้าสำรองทันที', mainRegistrationOpen ? 'success' : 'warning');
+}
+
+function updateMainToggleUI() {
+  const switchEl = document.getElementById('mainToggleSwitch');
+  const statusEl = document.getElementById('mainToggleStatus');
+  if (mainRegistrationOpen) {
+    switchEl.classList.add('on');
+    statusEl.textContent = '✅ เปิดรับอยู่';
+    statusEl.className = 'toggle-status open';
+  } else {
+    switchEl.classList.remove('on');
+    statusEl.textContent = '🔒 ปิดรับแล้ว';
+    statusEl.className = 'toggle-status closed';
+  }
+}
+
+function updateMaxMainDisplay() {
+  document.getElementById('maxMainLabel').textContent = currentMaxMain;
+  document.getElementById('maxMainLabel2').textContent = currentMaxMain;
+}
+
+// ==================== REGISTRATION ====================
+function selectLevel(level) {
+  document.querySelectorAll('.level-option').forEach(el => el.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('regLevel').value = level;
+}
+
+function registerPlayer() {
+  const name = document.getElementById('regName').value.trim();
+  const level = document.getElementById('regLevel').value;
+
+  if (!name || !level) {
+    showToast('กรุณากรอกชื่อและเลือกระดับการเล่น', 'error');
+    return;
+  }
+
+  const mainPlayers = players.filter(p => !p.isReserve);
+  const reservePlayers = players.filter(p => p.isReserve);
+
+  let isReserve = false;
+  if (!mainRegistrationOpen) {
+    isReserve = true;
+  } else if (mainPlayers.length >= currentMaxMain) {
+    isReserve = true;
+  }
+
+  if (isReserve && reservePlayers.length >= MAX_RESERVE) {
+    showToast('ผู้เล่นสำรองเต็มแล้ว (4 คน)', 'error');
+    return;
+  }
+
+  if (!isReserve && mainPlayers.length >= currentMaxMain) {
+    showToast('ผู้เล่นหลักเต็มแล้ว (' + currentMaxMain + ' คน)', 'error');
+    return;
+  }
+
+  const player = {
+    id: Date.now(),
+    name,
+    level,
+    isReserve,
+    registeredAt: new Date().toISOString(),
+    checkedIn: false
+  };
+
+  players.push(player);
+  saveData();
+  updateCounts();
+  renderPlayerList();
+  renderCheckIn();
+  updateAdminPlayerSelect();
+
+  document.getElementById('regName').value = '';
+  document.getElementById('regLevel').value = '';
+  document.querySelectorAll('.level-option').forEach(el => el.classList.remove('selected'));
+
+  if (isReserve) {
+    showToast('🔒 ปิดรับผู้เล่นหลักแล้ว - คุณอยู่ลำดับสำรองที่ ' + (reservePlayers.length + 1), 'warning');
+  } else {
+    showToast('ลงชื่อสำเร็จ! ยินดีต้อนรับสู่ก๊วนเก๋าTeen', 'success');
+  }
+}
+
+function removePlayer(id) {
+  if (!confirm('ต้องการลบผู้เล่นนี้ใช่หรือไม่?')) return;
+  players = players.filter(p => p.id !== id);
+  saveData();
+  updateCounts();
+  renderPlayerList();
+  renderCheckIn();
+  renderCourts();
+  renderWaitingList();
+  updateAdminPlayerSelect();
+  showToast('ลบผู้เล่นเรียบร้อย', 'success');
+}
+
+function promoteReserve(playerId) {
+  const player = players.find(p => p.id === playerId);
+  if (!player || !player.isReserve) return;
+
+  const mainPlayers = players.filter(p => !p.isReserve);
+  if (mainPlayers.length >= currentMaxMain) {
+    showToast('ผู้เล่นหลักเต็มแล้ว (' + currentMaxMain + ' คน) ไม่สามารถอนุมัติได้', 'error');
+    return;
+  }
+
+  player.isReserve = false;
+  saveData();
+  updateCounts();
+  renderPlayerList();
+  renderCheckIn();
+  renderCourts();
+  renderWaitingList();
+  updateAdminPlayerSelect();
+  showToast('✅ อนุมัติ ' + player.name + ' เป็นผู้เล่นหลักแล้ว!', 'success');
+}
+
+// ==================== PAIR HISTORY ====================
+function getPairKey(name1, name2) {
+  return [name1, name2].sort().join('|');
+}
+
+function recordPairHistory(team) {
+  if (team[0] && team[1]) {
+    const key = getPairKey(team[0], team[1]);
+    pairHistory[key] = (pairHistory[key] || 0) + 1;
+    localStorage.setItem('gwPairHistory', JSON.stringify(pairHistory));
+  }
+}
+
+function getPairScore(name1, name2) {
+  return pairHistory[getPairKey(name1, name2)] || 0;
+}
+
+// ==================== WAITING LIST ====================
+function renderWaitingList() {
+  const courtPlayers = courts.flatMap(c => [...c.left, ...c.right]).filter(n => n);
+  const waitingPlayers = players.filter(p => p.checkedIn && !p.isReserve && !courtPlayers.includes(p.name));
+
+  const grid = document.getElementById('waitingList');
+  if (waitingPlayers.length === 0) {
+    grid.innerHTML = '<div class="waiting-empty">🧍 ไม่มีผู้เล่นรอลงสนาม</div>';
+    return;
+  }
+
+  grid.innerHTML = waitingPlayers.map(p => `
+    <div class="waiting-item" onclick="adminSelectWaitingPlayer('${p.name}')">
+      <div class="waiting-person">🧍</div>
+      <div class="waiting-name">${p.name}</div>
+      <span class="waiting-level ${LEVEL_COLORS[p.level] || 'level-n'}">${p.level}</span>
+    </div>
+  `).join('');
+}
+
+// ==================== BALANCED RANDOMIZATION ====================
+function getPlayerLevel(name) {
+  const p = players.find(pl => pl.name === name);
+  return p ? p.level : 'N';
+}
+
+function getAvailablePlayers() {
+  const courtPlayers = courts.flatMap(c => [...c.left, ...c.right]).filter(n => n);
+  return players
+    .filter(p => p.checkedIn && !courtPlayers.includes(p.name) && !p.isReserve)
+    .map(p => ({ name: p.name, level: p.level, score: LEVEL_SCORE[p.level] || 2 }));
+}
+
+function pickBalancedFour(available) {
+  if (available.length < 4) return null;
+
+  const byLevel = {};
+  available.forEach(p => {
+    if (!byLevel[p.level]) byLevel[p.level] = [];
+    byLevel[p.level].push(p);
+  });
+
+  for (const level of ['P', 'S', 'N', 'BG']) {
+    if (byLevel[level] && byLevel[level].length >= 4) {
+      const group = shuffleArray([...byLevel[level]]).slice(0, 4);
+      if (level === 'P' && group.length >= 4) {
+        return { left: [group[0].name, group[1].name], right: [group[2].name, group[3].name] };
+      }
+      return { left: [group[0].name, group[1].name], right: [group[2].name, group[3].name] };
+    }
+  }
+
+  let bestGroup = null;
+  let bestScore = Infinity;
+  const combinations = getCombinations(available, 4);
+
+  for (const group of combinations) {
+    const scores = group.map(p => p.score);
+    const avg = scores.reduce((a,b) => a+b, 0) / 4;
+    let variance = scores.reduce((sum, s) => sum + Math.pow(s - avg, 2), 0) / 4;
+
+    let penalty = 0;
+    const pCount = group.filter(p => p.level === 'P').length;
+    if (pCount >= 3) penalty = 5;
+    else if (pCount === 2) penalty = 1;
+
+    let minPairPenalty = Infinity;
+    let bestPairing = null;
+    const pairings = [[[0,1],[2,3]], [[0,2],[1,3]], [[0,3],[1,2]]];
+
+    for (const pairing of pairings) {
+      let pp = 0;
+      for (const [i,j] of pairing) {
+        pp += getPairScore(group[i].name, group[j].name) * 10;
+      }
+      if (pp < minPairPenalty) {
+        minPairPenalty = pp;
+        bestPairing = pairing;
+      }
+    }
+
+    const totalScore = variance + penalty + minPairPenalty;
+    if (totalScore < bestScore) {
+      bestScore = totalScore;
+      bestGroup = { group, pairing: bestPairing };
+    }
+  }
+
+  if (!bestGroup) return null;
+  const group = bestGroup.group;
+  const pairing = bestGroup.pairing;
+  const pPlayers = group.filter(p => p.level === 'P');
+  const nonPPlayers = group.filter(p => p.level !== 'P');
+
+  if (pPlayers.length >= 2) {
+    return {
+      left: [pPlayers[0].name, nonPPlayers[0] ? nonPPlayers[0].name : pPlayers[1].name],
+      right: [pPlayers[1] ? pPlayers[1].name : nonPPlayers[1].name, nonPPlayers[1] ? nonPPlayers[1].name : '']
+    };
+  }
+
+  const [idx1, idx2] = pairing[0];
+  const [idx3, idx4] = pairing[1];
+  return { left: [group[idx1].name, group[idx2].name], right: [group[idx3].name, group[idx4].name] };
+}
+
+function getCombinations(arr, k) {
+  const result = [];
+  function combine(start, path) {
+    if (path.length === k) { result.push([...path]); return; }
+    for (let i = start; i < arr.length; i++) {
+      path.push(arr[i]); combine(i + 1, path); path.pop();
+    }
+  }
+  combine(0, []);
+  return result;
+}
+
+function shuffleArray(arr) {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// ==================== COURT MANAGEMENT ====================
+function renderCourts() {
+  const grid = document.getElementById('courtsGrid');
+  grid.innerHTML = courts.map(court => {
+    const hasPlayers = court.left[0] && court.right[0];
+    return `
+    <div class="court-card ${hasPlayers ? 'active-court' : ''}">
+      <div class="court-header">
+        <h3>🏸 คอร์ท ${court.number}</h3>
+        <div class="game-info">
+          <span class="game-badge">เกมที่ ${court.gameCount + 1}</span>
+          <div class="court-number-edit">
+            <input type="text" value="${court.number}" onchange="updateCourtNumber(${court.id}, this.value)" title="แก้ไขเลขคอร์ท" style="width:60px;padding:4px 8px;border:2px solid var(--yellow);border-radius:8px;background:var(--bg-dark);color:var(--white);font-family:'Kanit';font-size:0.9rem;font-weight:700;text-align:center;">
+          </div>
+        </div>
+      </div>
+      <div class="court-body">
+        <div class="court-sides">
+          <div class="court-side left-side">
+            ${court.leftStay ? '<span class="stay-badge">🏆 ชนะเกมที่แล้ว</span>' : ''}
+            ${!court.leftStay && court.left[0] && court.gameCount > 0 ? '<span class="new-badge">🆕 ใหม่</span>' : ''}
+            <div class="side-label">ฝั่งซ้าย (ทีม A)</div>
+            ${court.left[0] ? `<div class="court-player">${court.left[0]} ${getLevelBadge(court.left[0])}</div>` : '<div class="court-player empty">ว่าง</div>'}
+            ${court.left[1] ? `<div class="court-player">${court.left[1]} ${getLevelBadge(court.left[1])}</div>` : '<div class="court-player empty">ว่าง</div>'}
+          </div>
+          <div class="court-side right-side">
+            ${court.rightStay ? '<span class="stay-badge">🏆 ชนะเกมที่แล้ว</span>' : ''}
+            ${!court.rightStay && court.right[0] && court.gameCount > 0 ? '<span class="new-badge">🆕 ใหม่</span>' : ''}
+            <div class="side-label">ฝั่งขวา (ทีม B)</div>
+            ${court.right[0] ? `<div class="court-player">${court.right[0]} ${getLevelBadge(court.right[0])}</div>` : '<div class="court-player empty">ว่าง</div>'}
+            ${court.right[1] ? `<div class="court-player">${court.right[1]} ${getLevelBadge(court.right[1])}</div>` : '<div class="court-player empty">ว่าง</div>'}
+          </div>
+        </div>
+      </div>
+      <div class="court-actions">
+        <button class="btn btn-primary btn-small" onclick="handleOut(${court.id}, 'left')" ${!hasPlayers ? 'disabled' : ''}>🚪 ทีมซ้ายออก</button>
+        <button class="btn btn-success btn-small" onclick="handleOut(${court.id}, 'right')" ${!hasPlayers ? 'disabled' : ''}>🚪 ทีมขวาออก</button>
+        <button class="btn btn-danger btn-small" onclick="clearCourt(${court.id})">🔄 เคลียร์คอร์ท</button>
+      </div>
+    </div>
+  `}).join('');
+}
+
+function updateCourtNumber(courtId, newNumber) {
+  const court = courts.find(c => c.id === courtId);
+  if (!court) return;
+  court.number = newNumber.trim() || court.number;
+  saveData();
+  renderCourts();
+  showToast('แก้ไขเลขคอร์ทเรียบร้อย', 'success');
+}
+
+function getLevelBadge(playerName) {
+  const player = players.find(p => p.name === playerName);
+  if (!player) return '';
+  return `<span class="level-badge ${LEVEL_COLORS[player.level] || 'level-n'}">${player.level}</span>`;
+}
+
+function handleOut(courtId, outSide) {
+  const court = courts.find(c => c.id === courtId);
+  if (!court) return;
+  const winSide = outSide === 'left' ? 'right' : 'left';
+  court.gameCount++;
+  let available = getAvailablePlayers();
+
+  court[outSide] = ['', ''];
+  court[outSide + 'Stay'] = false;
+
+  const newOutTeam = pickBalancedPair(available, 2);
+  if (newOutTeam) {
+    court[outSide] = [newOutTeam[0].name, newOutTeam[1].name];
+    available = available.filter(p => p.name !== newOutTeam[0].name && p.name !== newOutTeam[1].name);
+  }
+
+  const wasStaying = court[winSide + 'Stay'];
+  if (wasStaying) {
+    court[winSide] = ['', ''];
+    court[winSide + 'Stay'] = false;
+    const newWinTeam = pickBalancedPair(available, 2);
+    if (newWinTeam) court[winSide] = [newWinTeam[0].name, newWinTeam[1].name];
+    court[winSide + 'Stay'] = true;
+  } else {
+    court[winSide + 'Stay'] = true;
+  }
+
+  saveData();
+  renderCourts();
+  renderWaitingList();
+
+  const msg = wasStaying 
+    ? '🎲 หมุนเวียน! ทีมที่ชนะเกมที่แล้วออก (เล่นครบ 2 เกม) -> สุ่มผู้เล่นใหม่'
+    : '🏆 ทีม ' + (winSide === 'left' ? 'ซ้าย' : 'ขวา') + ' ชนะ! เล่นต่ออีก 1 เกม';
+  showToast(msg, 'success');
+}
+
+function pickBalancedPair(available, count) {
+  if (available.length < count) return null;
+  const byLevel = {};
+  available.forEach(p => {
+    if (!byLevel[p.level]) byLevel[p.level] = [];
+    byLevel[p.level].push(p);
+  });
+  for (const level of ['P', 'S', 'N', 'BG']) {
+    if (byLevel[level] && byLevel[level].length >= count) {
+      return shuffleArray(byLevel[level]).slice(0, count);
+    }
+  }
+  return available.slice(0, count);
+}
+
+function clearCourt(courtId) {
+  const court = courts.find(c => c.id === courtId);
+  if (!court) return;
+  court.left = ['', '']; court.right = ['', ''];
+  court.leftStay = false; court.rightStay = false;
+  court.gameCount = 0;
+  saveData();
+  renderCourts();
+  renderWaitingList();
+  showToast('เคลียร์คอร์ทเรียบร้อย', 'success');
+}
+
+function resetAllCourts() {
+  courts.forEach(court => {
+    court.left = ['', '']; court.right = ['', ''];
+    court.leftStay = false; court.rightStay = false;
+    court.gameCount = 0;
+  });
+  saveData();
+  renderCourts();
+  renderWaitingList();
+  showToast('รีเซ็ตทุกคอร์ทเรียบร้อย', 'success');
+}
+
+function randomizeAllCourts() {
+  let available = getAvailablePlayers();
+  if (available.length < 6) {
+    showToast('ต้องมีผู้เล่นเช็คชื่ออย่างน้อย 6 คน', 'error');
+    return;
+  }
+  courts.forEach(court => {
+    court.left = ['', '']; court.right = ['', ''];
+    court.leftStay = false; court.rightStay = false;
+    court.gameCount = 0;
+    const four = pickBalancedFour(available);
+    if (four) {
+      court.left = four.left; court.right = four.right;
+      const used = [...four.left, ...four.right].filter(n => n);
+      available = available.filter(p => !used.includes(p.name));
+    }
+  });
+  saveData();
+  renderCourts();
+  renderWaitingList();
+  showToast('🎲 สุ่มผู้เล่นลงคอร์ทเรียบร้อย! (ระดับมือใกล้เคียงกัน)', 'success');
+}
+
+// ==================== ADMIN PANEL ====================
+function updateAdminPlayerSelect() {
+  const select = document.getElementById('adminPlayerSelect');
+  const courtPlayers = courts.flatMap(c => [...c.left, ...c.right]).filter(n => n);
+  const waitingPlayers = players.filter(p => p.checkedIn && !courtPlayers.includes(p.name) && !p.isReserve);
+
+  let html = '<option value="">-- เลือกผู้เล่น --</option>';
+  if (waitingPlayers.length > 0) {
+    html += '<optgroup label="👥 ผู้เล่นรอลงสนาม">';
+    waitingPlayers.forEach(p => { html += `<option value="${p.name}">${p.name} (${p.level})</option>`; });
+    html += '</optgroup>';
+  }
+  const allCheckedIn = players.filter(p => p.checkedIn && !p.isReserve);
+  if (allCheckedIn.length > 0) {
+    html += '<optgroup label="🏟️ ผู้เล่นทั้งหมด">';
+    allCheckedIn.forEach(p => { html += `<option value="${p.name}">${p.name} (${p.level})</option>`; });
+    html += '</optgroup>';
+  }
+  select.innerHTML = html;
+}
+
+function adminAddPlayer() {
+  const courtId = parseInt(document.getElementById('adminCourtSelect').value);
+  const side = document.getElementById('adminSideSelect').value;
+  const playerName = document.getElementById('adminPlayerSelect').value;
+  const position = parseInt(document.getElementById('adminPositionSelect').value);
+
+  if (!courtId || !side || !playerName) {
+    showToast('กรุณาเลือกคอร์ท ฝั่ง และผู้เล่น', 'error');
+    return;
+  }
+
+  const court = courts.find(c => c.id === courtId);
+  if (!court) return;
+
+  courts.forEach(c => {
+    if (c.id !== courtId) {
+      if (c.left[0] === playerName) c.left[0] = '';
+      if (c.left[1] === playerName) c.left[1] = '';
+      if (c.right[0] === playerName) c.right[0] = '';
+      if (c.right[1] === playerName) c.right[1] = '';
+    }
+  });
+
+  court[side][position] = playerName;
+  saveData();
+  renderCourts();
+  renderWaitingList();
+  updateAdminPlayerSelect();
+  showToast(`เพิ่ม ${playerName} ลงคอร์ท ${court.number} ฝั่ง${side === 'left' ? 'ซ้าย' : 'ขวา'} เรียบร้อย`, 'success');
+}
+
+function adminSwapSides() {
+  const courtId = parseInt(document.getElementById('adminCourtSelect').value);
+  if (!courtId) { showToast('กรุณาเลือกคอร์ท', 'error'); return; }
+  const court = courts.find(c => c.id === courtId);
+  if (!court) return;
+  const tempLeft = [...court.left];
+  court.left = [...court.right];
+  court.right = tempLeft;
+  const tempLeftStay = court.leftStay;
+  court.leftStay = court.rightStay;
+  court.rightStay = tempLeftStay;
+  saveData();
+  renderCourts();
+  showToast(`สลับฝั่งคอร์ท ${court.number} เรียบร้อย`, 'success');
+}
+
+function adminClearCourt() {
+  const courtId = parseInt(document.getElementById('adminCourtSelect').value);
+  if (!courtId) { showToast('กรุณาเลือกคอร์ท', 'error'); return; }
+  clearCourt(courtId);
+}
+
+let swapModalData = { type: '', source: null, target: null };
+
+function adminSwapPlayers() {
+  swapModalData = { type: 'swap', source: null, target: null };
+  openSwapModal('เลือกผู้เล่นคนที่ 1 (สลับ)', getAllCourtPlayers());
+}
+
+function adminMovePlayer() {
+  swapModalData = { type: 'move', source: null, target: null };
+  openSwapModal('เลือกผู้เล่นที่ต้องการย้าย', getAllCourtPlayers());
+}
+
+function getAllCourtPlayers() {
+  const result = [];
+  courts.forEach(c => {
+    if (c.left[0]) result.push({ name: c.left[0], court: c.id, side: 'left', pos: 0 });
+    if (c.left[1]) result.push({ name: c.left[1], court: c.id, side: 'left', pos: 1 });
+    if (c.right[0]) result.push({ name: c.right[0], court: c.id, side: 'right', pos: 0 });
+    if (c.right[1]) result.push({ name: c.right[1], court: c.id, side: 'right', pos: 1 });
+  });
+  return result;
+}
+
+function openSwapModal(title, options) {
+  document.getElementById('swapModalTitle').textContent = title;
+  const container = document.getElementById('swapOptions');
+  container.innerHTML = options.map((opt, idx) => `
+    <div class="swap-option" onclick="selectSwapOption(${idx})" data-idx="${idx}">
+      <span>${opt.name} (คอร์ท ${opt.court} ${opt.side === 'left' ? 'ซ้าย' : 'ขวา'} ตำแหน่ง ${opt.pos + 1})</span>
+      <span class="level-badge ${LEVEL_COLORS[getPlayerLevel(opt.name)] || 'level-n'}">${getPlayerLevel(opt.name)}</span>
+    </div>
+  `).join('');
+  document.getElementById('swapModal').classList.add('show');
+  swapModalData.options = options;
+}
+
+function selectSwapOption(idx) {
+  document.querySelectorAll('.swap-option').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`.swap-option[data-idx="${idx}"]`).classList.add('selected');
+  if (!swapModalData.source) {
+    swapModalData.source = swapModalData.options[idx];
+    if (swapModalData.type === 'swap') {
+      document.getElementById('swapModalTitle').textContent = 'เลือกผู้เล่นคนที่ 2 (สลับ)';
+    } else if (swapModalData.type === 'move') {
+      const destOptions = getEmptySlots();
+      if (destOptions.length === 0) {
+        showToast('ไม่มีช่องว่างในคอร์ท', 'error');
+        closeSwapModal(); return;
+      }
+      document.getElementById('swapModalTitle').textContent = 'เลือกตำแหน่งปลายทาง';
+      const container = document.getElementById('swapOptions');
+      container.innerHTML = destOptions.map((opt, idx2) => `
+        <div class="swap-option" onclick="selectSwapOption(${idx2})" data-idx="${idx2}">
+          <span>คอร์ท ${opt.court} ${opt.side === 'left' ? 'ซ้าย' : 'ขวา'} ตำแหน่ง ${opt.pos + 1} (ว่าง)</span>
+        </div>
+      `).join('');
+      swapModalData.options = destOptions;
+      return;
+    }
+  } else {
+    swapModalData.target = swapModalData.options[idx];
+  }
+}
+
+function getEmptySlots() {
+  const result = [];
+  courts.forEach(c => {
+    if (!c.left[0]) result.push({ court: c.id, side: 'left', pos: 0 });
+    if (!c.left[1]) result.push({ court: c.id, side: 'left', pos: 1 });
+    if (!c.right[0]) result.push({ court: c.id, side: 'right', pos: 0 });
+    if (!c.right[1]) result.push({ court: c.id, side: 'right', pos: 1 });
+  });
+  return result;
+}
+
+function confirmSwap() {
+  if (!swapModalData.source || !swapModalData.target) {
+    showToast('กรุณาเลือกครบทั้งสองรายการ', 'error'); return;
+  }
+  const s = swapModalData.source;
+  const t = swapModalData.target;
+  const sourceCourt = courts.find(c => c.id === s.court);
+  const targetCourt = courts.find(c => c.id === t.court);
+
+  if (swapModalData.type === 'swap') {
+    const temp = sourceCourt[s.side][s.pos];
+    sourceCourt[s.side][s.pos] = targetCourt[t.side][t.pos];
+    targetCourt[t.side][t.pos] = temp;
+    showToast(`สลับ ${s.name} <-> ${t.name} เรียบร้อย`, 'success');
+  } else if (swapModalData.type === 'move') {
+    targetCourt[t.side][t.pos] = sourceCourt[s.side][s.pos];
+    sourceCourt[s.side][s.pos] = '';
+    showToast(`ย้าย ${s.name} -> คอร์ท ${t.court} เรียบร้อย`, 'success');
+  }
+
+  saveData();
+  renderCourts();
+  renderWaitingList();
+  updateAdminPlayerSelect();
+  closeSwapModal();
+}
+
+function closeSwapModal() {
+  document.getElementById('swapModal').classList.remove('show');
+  swapModalData = { type: '', source: null, target: null };
+}
+
+function adminSelectWaitingPlayer(name) {
+  const select = document.getElementById('adminPlayerSelect');
+  for (let i = 0; i < select.options.length; i++) {
+    if (select.options[i].value === name) { select.selectedIndex = i; break; }
+  }
+  showToast(`เลือก ${name} แล้ว กรุณาเลือกคอร์ทและฝั่งแล้วกด "เพิ่ม/แทนที่ผู้เล่น"`, 'warning');
+}
+
+// ==================== PLAYER LIST ====================
+function renderPlayerList() {
+  const main = players.filter(p => !p.isReserve);
+  const reserve = players.filter(p => p.isReserve);
+
+  document.getElementById('mainCount').textContent = main.length;
+  document.getElementById('mainCount2').textContent = main.length;
+  document.getElementById('reserveCount').textContent = reserve.length;
+  document.getElementById('reserveCount2').textContent = reserve.length;
+
+  const list = document.getElementById('playerList');
+  let html = '';
+
+  html += `
+    <div class="admin-panel" style="margin-bottom: 15px;">
+      <div class="admin-panel-title">🔧 แอดมิน: จัดการจำนวนผู้เล่นหลัก</div>
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <div>
+          <label style="font-weight: 600; color: var(--yellow-light); display: block; margin-bottom: 6px; font-size:0.9rem;">จำนวนผู้เล่นหลักสูงสุด (คน)</label>
+          <input type="number" id="maxMainInput" value="${currentMaxMain}" min="18" max="24" 
+            style="padding: 8px 12px; border: 2px solid var(--yellow); border-radius: 8px; background: var(--bg-dark); color: var(--white); font-family: 'Kanit'; font-size: 1rem; width: 80px; text-align: center; font-weight: 700;">
+        </div>
+        <button class="btn btn-success" onclick="updateMaxMain()" style="margin-top: 22px;">💾 บันทึก</button>
+      </div>
+      <div style="margin-top: 10px; font-size: 0.85rem; color: var(--gray);">
+        ปัจจุบัน: ${main.length}/${currentMaxMain} คน | สูงสุดได้ถึง 24 คน
+      </div>
+    </div>
+  `;
+
+  if (main.length > 0) {
+    html += '<h3 style="color:var(--yellow);margin-bottom:10px;font-size:1.1rem;font-weight:700;">👥 ผู้เล่นหลัก</h3>';
+    html += main.map((p, i) => renderPlayerItem(p, i + 1)).join('');
+  }
+  if (reserve.length > 0) {
+    html += '<h3 style="color:var(--blue);margin:20px 0 10px;font-size:1.1rem;font-weight:700;">⭐ ผู้เล่นสำรอง</h3>';
+    html += reserve.map((p, i) => renderPlayerItem(p, i + 1, true)).join('');
+  }
+  if (players.length === 0) {
+    html = '<div class="text-center" style="padding:30px;color:var(--gray);">ยังไม่มีผู้เล่นลงชื่อ</div>';
+  }
+  list.innerHTML = html;
+}
+
+function updateMaxMain() {
+  const newMax = parseInt(document.getElementById('maxMainInput').value);
+  if (newMax < 18 || newMax > 24) {
+    showToast('จำนวนต้องอยู่ระหว่าง 18-24 คน', 'error');
+    return;
+  }
+  currentMaxMain = newMax;
+  localStorage.setItem('gwMaxMain', currentMaxMain);
+  updateMaxMainDisplay();
+  renderPlayerList();
+  showToast('บันทึกจำนวนผู้เล่นหลักสูงสุด ' + currentMaxMain + ' คน', 'success');
+}
+
+function renderPlayerItem(player, index, isReserve = false) {
+  const promoteBtn = isReserve ? 
+    `<button class="btn btn-success btn-small" onclick="promoteReserve(${player.id})">✅ อนุมัติ</button>` : '';
+
+  return `
+    <div class="player-item ${isReserve ? 'reserve-item' : ''}">
+      <div class="player-info">
+        <div class="player-avatar">${player.name.charAt(0)}</div>
+        <div class="player-details">
+          <h4>${index}. ${player.name} ${isReserve ? '<span style="color:var(--blue);font-size:0.85rem;">(สำรอง)</span>' : ''}</h4>
+          <p>ระดับ: ${LEVEL_NAMES[player.level] || player.level}</p>
+        </div>
+        <span class="level-badge ${LEVEL_COLORS[player.level] || 'level-n'}">${player.level}</span>
+      </div>
+      <div class="player-actions">
+        ${promoteBtn}
+        <button class="btn btn-danger btn-small" onclick="removePlayer(${player.id})">🗑️ ลบ</button>
+      </div>
+    </div>
+  `;
+}
+
+// ==================== CHECK-IN ====================
+function renderCheckIn() {
+  const grid = document.getElementById('checkinGrid');
+  const mainPlayers = players.filter(p => !p.isReserve);
+  if (mainPlayers.length === 0) {
+    grid.innerHTML = '<div class="text-center" style="grid-column:1/-1;padding:30px;color:var(--gray);">ยังไม่มีผู้เล่นลงชื่อ</div>';
+    return;
+  }
+  grid.innerHTML = mainPlayers.map(p => `
+    <div class="checkin-item ${p.checkedIn ? 'checked' : ''}" onclick="toggleCheckIn(${p.id})">
+      <div class="player-avatar" style="margin:0 auto 10px;width:50px;height:50px;font-size:1.3rem;">${p.name.charAt(0)}</div>
+      <div style="font-weight:700;font-size:1rem;">${p.name}</div>
+      <span class="level-badge ${LEVEL_COLORS[p.level] || 'level-n'}" style="margin-top:6px;display:inline-block;">${p.level}</span>
+      <div class="checkin-status">${p.checkedIn ? '✅ เช็คชื่อแล้ว' : '⏳ ยังไม่เช็คชื่อ'}</div>
+    </div>
+  `).join('');
+}
+
+function toggleCheckIn(id) {
+  const player = players.find(p => p.id === id);
+  if (player) {
+    player.checkedIn = !player.checkedIn;
+    saveData();
+    renderCheckIn();
+    renderWaitingList();
+    showToast(player.checkedIn ? `✅ ${player.name} เช็คชื่อแล้ว` : `❌ ยกเลิกเช็คชื่อ ${player.name}`, 'success');
+  }
+}
+
+function checkInAll() {
+  players.filter(p => !p.isReserve).forEach(p => p.checkedIn = true);
+  saveData();
+  renderCheckIn();
+  renderWaitingList();
+  showToast('เช็คชื่อทั้งหมดเรียบร้อย', 'success');
+}
+
+function uncheckAll() {
+  players.forEach(p => p.checkedIn = false);
+  saveData();
+  renderCheckIn();
+  renderWaitingList();
+  showToast('ยกเลิกเช็คชื่อทั้งหมด', 'warning');
+}
+
+// ==================== COST CALCULATOR ====================
+function calculateCost() {
+  const courtCost = parseFloat(document.getElementById('costCourt').value) || 0;
+  const shuttleCost = parseFloat(document.getElementById('costShuttle').value) || 0;
+  const otherCost = parseFloat(document.getElementById('costOther').value) || 0;
+  const people = parseInt(document.getElementById('costPeople').value) || 0;
+
+  if (people <= 0) { showToast('กรุณากรอกจำนวนคน', 'error'); return; }
+
+  const total = courtCost + shuttleCost + otherCost;
+  const perPerson = Math.ceil(total / people);
+
+  document.getElementById('totalAmount').textContent = total.toLocaleString('th-TH') + ' บาท';
+  document.getElementById('perPerson').textContent = 'คนละ ' + perPerson.toLocaleString('th-TH') + ' บาท';
+  document.getElementById('costDetail').textContent = `หารด้วย ${people} คน (ปัดเศษขึ้น)`;
+
+  const breakdown = document.getElementById('costBreakdown');
+  breakdown.innerHTML = `
+    <div class="cost-item"><span class="label">🏟️ ค่าสนาม</span><span class="value">${courtCost.toLocaleString('th-TH')} บาท</span></div>
+    <div class="cost-item"><span class="label">🏸 ค่าลูกแบด</span><span class="value">${shuttleCost.toLocaleString('th-TH')} บาท</span></div>
+    ${otherCost > 0 ? `<div class="cost-item"><span class="label">📋 ค่าใช้จ่ายอื่นๆ</span><span class="value">${otherCost.toLocaleString('th-TH')} บาท</span></div>` : ''}
+    <div class="cost-item" style="border-top:2px solid rgba(255,255,255,0.1);margin-top:8px;padding-top:12px;"><span class="label" style="font-weight:700;color:var(--yellow);">💰 รวมทั้งหมด</span><span class="value" style="color:var(--yellow);font-size:1.1rem;font-weight:900;">${total.toLocaleString('th-TH')} บาท</span></div>
+    <div class="cost-item"><span class="label" style="font-weight:700;color:var(--green);">👤 คนละ</span><span class="value" style="color:var(--green);font-size:1.1rem;font-weight:900;">${perPerson.toLocaleString('th-TH')} บาท</span></div>
+  `;
+
+  document.getElementById('costResult').style.display = 'block';
+
+  const historyItem = {
+    id: Date.now(),
+    courtCost, shuttleCost, otherCost, total, people, perPerson,
+    time: new Date().toISOString()
+  };
+  costHistory.push(historyItem);
+  localStorage.setItem('gwCostHistory', JSON.stringify(costHistory));
+  renderCostHistory();
+  showToast(`คำนวณเสร็จแล้ว! คนละ ${perPerson.toLocaleString('th-TH')} บาท`, 'success');
+}
+
+function autoFillPeople() {
+  const checkedInCount = players.filter(p => p.checkedIn && !p.isReserve).length;
+  if (checkedInCount === 0) { showToast('ยังไม่มีผู้เล่นเช็คชื่อ', 'error'); return; }
+  document.getElementById('costPeople').value = checkedInCount;
+  showToast(`ใช้จำนวนคน ${checkedInCount} คน (จากเช็คชื่อ)`, 'success');
+}
+
+function clearCost() {
+  document.getElementById('costCourt').value = '';
+  document.getElementById('costShuttle').value = '';
+  document.getElementById('costOther').value = '0';
+  document.getElementById('costPeople').value = '';
+  document.getElementById('costResult').style.display = 'none';
+  showToast('ล้างข้อมูลเรียบร้อย', 'success');
+}
+
+function renderCostHistory() {
+  const container = document.getElementById('costHistory');
+  if (costHistory.length === 0) {
+    container.innerHTML = '<div class="text-center" style="padding:25px;color:var(--gray);">ยังไม่มีประวัติการคำนวณ</div>';
+    return;
+  }
+  container.innerHTML = costHistory.slice().reverse().map(h => `
+    <div class="announcement-item">
+      <div>
+        <div style="font-weight:700;">💰 รวม ${h.total.toLocaleString('th-TH')} บาท | คนละ ${h.perPerson.toLocaleString('th-TH')} บาท (${h.people} คน)</div>
+        <div class="time">${new Date(h.time).toLocaleString('th-TH')}</div>
+        <div style="font-size:0.8rem;color:var(--gray);margin-top:4px;">
+          🏟️ ${h.courtCost.toLocaleString('th-TH')} + 🏸 ${h.shuttleCost.toLocaleString('th-TH')} ${h.otherCost > 0 ? '+ 📋 ' + h.otherCost.toLocaleString('th-TH') : ''}
+        </div>
+      </div>
+      <button class="btn btn-danger btn-small" onclick="removeCostHistory(${h.id})">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function removeCostHistory(id) {
+  costHistory = costHistory.filter(h => h.id !== id);
+  localStorage.setItem('gwCostHistory', JSON.stringify(costHistory));
+  renderCostHistory();
+  showToast('ลบประวัติเรียบร้อย', 'success');
+}
+
+// ==================== ANNOUNCEMENTS ====================
+function renderAnnouncements() {
+  const list = document.getElementById('announcementList');
+  if (announcements.length === 0) {
+    list.innerHTML = '<div class="text-center" style="padding:30px;color:var(--gray);">ยังไม่มีประกาศ</div>';
+    return;
+  }
+  list.innerHTML = announcements.slice().reverse().map(a => `
+    <div class="announcement-item ${a.type === 'venue' ? 'venue' : ''}">
+      <div>
+        <div style="font-weight:600;">${a.type === 'venue' ? '🏟️' : '📢'} ${a.text}</div>
+        <div class="time">${new Date(a.time).toLocaleString('th-TH')}</div>
+      </div>
+      <button class="btn btn-danger btn-small" onclick="removeAnnouncement(${a.id})">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function addAnnouncement() {
+  const text = document.getElementById('announceText').value.trim();
+  if (!text) return;
+  announcements.push({ id: Date.now(), text, type: 'announce', time: new Date().toISOString() });
+  document.getElementById('announceText').value = '';
+  saveData();
+  renderAnnouncements();
+  showToast('ประกาศเรียบร้อย', 'success');
+}
+
+function addVenue() {
+  const text = document.getElementById('venueText').value.trim();
+  if (!text) return;
+  announcements.push({ id: Date.now(), text: `สนาม: ${text}`, type: 'venue', time: new Date().toISOString() });
+  document.getElementById('venueText').value = '';
+  saveData();
+  renderAnnouncements();
+  showToast('แจ้งสนามเรียบร้อย', 'success');
+}
+
+function removeAnnouncement(id) {
+  announcements = announcements.filter(a => a.id !== id);
+  saveData();
+  renderAnnouncements();
+  showToast('ลบประกาศเรียบร้อย', 'success');
+}
+
+// ==================== UTILITIES ====================
+function updateCounts() {
+  const main = players.filter(p => !p.isReserve).length;
+  const reserve = players.filter(p => p.isReserve).length;
+  document.getElementById('mainCount').textContent = main;
+  document.getElementById('mainCount2').textContent = main;
+  document.getElementById('reserveCount').textContent = reserve;
+  document.getElementById('reserveCount2').textContent = reserve;
+}
+
+function saveData() {
+  localStorage.setItem('gwPlayers', JSON.stringify(players));
+  localStorage.setItem('gwCourts', JSON.stringify(courts));
+  localStorage.setItem('gwAnnouncements', JSON.stringify(announcements));
+  localStorage.setItem('gwPairHistory', JSON.stringify(pairHistory));
+  localStorage.setItem('gwCostHistory', JSON.stringify(costHistory));
+  localStorage.setItem('gwMainOpen', JSON.stringify(mainRegistrationOpen));
+  localStorage.setItem('gwMaxMain', currentMaxMain);
+}
+
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = `toast ${type}`;
+  requestAnimationFrame(() => { toast.classList.add('show'); });
+  setTimeout(() => { toast.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ก๊วนเก๋าTeen - ลงชื่อเล่นแบดมินตัน</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-black: #0a0a0a;
+      --bg-dark: #111111;
+      --pink: #ff1493;
+      --pink-light: #ff69b4;
+      --pink-dark: #c71585;
+      --yellow: #ffd700;
+      --yellow-light: #ffec8b;
+      --blue: #00bfff;
+      --blue-dark: #009acd;
+      --white: #ffffff;
+      --gray: #888888;
+      --green: #39ff14;
+      --orange: #ff8c00;
+      --red: #ff4444;
+      --teal: #00d4aa;
+      --purple: #9d4edd;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: var(--bg-black);
+      min-height: 100vh;
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ===== POSTER BACKGROUND ===== */
+    .bg-poster {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background: url('https://kimi-web-img.moonshot.cn/prod-data/online-image/search-upload/d8j75m9jj5k073unoj6g') center center / cover no-repeat;
+      opacity: 0.4;
+    }
+
+    .bg-poster::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px);
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* ===== HEADER - POSTER STYLE ===== */
+    .poster-header {
+      text-align: center;
+      padding: 30px 20px 20px;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .poster-header .logo-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      color: white;
+      padding: 6px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 2px solid var(--yellow);
+      margin-bottom: 15px;
+      box-shadow: 0 0 20px rgba(255,20,147,0.4);
+      animation: badgeGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes badgeGlow {
+      from { box-shadow: 0 0 15px rgba(255,20,147,0.4); }
+      to { box-shadow: 0 0 35px rgba(255,20,147,0.7), 0 0 50px rgba(255,215,0,0.3); }
+    }
+
+    .poster-header h1 {
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--yellow);
+      text-shadow: 
+        3px 3px 0 var(--pink),
+        6px 6px 0 rgba(0,0,0,0.5),
+        0 0 40px rgba(255,215,0,0.3);
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+      animation: livingText 2.5s ease-in-out infinite;
+      line-height: 1.2;
+    }
+
+    .poster-header .subtitle {
+      font-size: 1.1rem;
+      color: var(--pink-light);
+      font-weight: 500;
+      animation: pulseSubtitle 3s ease-in-out infinite;
+    }
+
+    @keyframes livingText {
+      0%, 100% { transform: scale(1) rotate(-1deg); text-shadow: 3px 3px 0 var(--pink), 6px 6px 0 rgba(0,0,0,0.5), 0 0 30px rgba(255,215,0,0.3); }
+      25% { transform: scale(1.02) rotate(1deg); text-shadow: 3px 3px 0 var(--pink), 6px 6px 0 rgba(0,0,0,0.5), 0 0 50px rgba(255,215,0,0.6), 0 0 80px rgba(255,20,147,0.3); }
+      50% { transform: scale(1.01) rotate(-0.5deg); text-shadow: 3px 3px 0 var(--pink), 6px 6px 0 rgba(0,0,0,0.5), 0 0 40px rgba(255,215,0,0.4); }
+      75% { transform: scale(1.03) rotate(0.5deg); text-shadow: 3px 3px 0 var(--pink), 6px 6px 0 rgba(0,0,0,0.5), 0 0 60px rgba(255,215,0,0.7), 0 0 100px rgba(0,191,255,0.3); }
+    }
+
+    @keyframes pulseSubtitle {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.02); }
+    }
+
+    /* ===== INFO CARDS - POSTER STYLE ===== */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .info-card {
+      background: linear-gradient(135deg, rgba(255,20,147,0.25), rgba(0,191,255,0.15));
+      border: 2px solid var(--pink);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(5px);
+    }
+
+    .info-card .icon {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+
+    .info-card .label {
+      font-size: 0.8rem;
+      color: var(--gray);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .info-card .value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--yellow);
+      text-shadow: 1px 1px 0 var(--pink);
+    }
+
+    .info-card.time-card {
+      background: linear-gradient(135deg, rgba(255,140,0,0.25), rgba(255,215,0,0.15));
+      border-color: var(--orange);
+    }
+
+    .info-card.time-card .value { color: var(--orange); text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+
+    .info-card.court-card {
+      background: linear-gradient(135deg, rgba(0,191,255,0.25), rgba(0,212,170,0.15));
+      border-color: var(--blue);
+    }
+
+    .info-card.court-card .value { color: var(--blue); text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+
+    .info-card.people-card {
+      background: linear-gradient(135deg, rgba(57,255,20,0.2), rgba(0,212,170,0.15));
+      border-color: var(--green);
+    }
+
+    .info-card.people-card .value { color: var(--green); text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+
+    .info-card.price-card {
+      background: linear-gradient(135deg, rgba(157,78,221,0.25), rgba(255,20,147,0.15));
+      border-color: var(--purple);
+    }
+
+    .info-card.price-card .value { color: var(--purple); text-shadow: 1px 1px 0 rgba(0,0,0,0.5); }
+
+    /* ===== RULES SECTION ===== */
+    .rules-section {
+      background: linear-gradient(135deg, rgba(255,140,0,0.15), rgba(255,215,0,0.08));
+      border: 2px solid var(--orange);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .rules-section::before {
+      content: '⚠️ กติกาสำคัญ';
+      display: block;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--orange);
+      margin-bottom: 10px;
+    }
+
+    .rules-section p {
+      font-size: 0.95rem;
+      color: var(--yellow-light);
+      line-height: 1.8;
+      margin-bottom: 6px;
+    }
+
+    .rules-section strong { color: var(--orange); }
+
+    /* ===== LEVEL LEGEND ===== */
+    .level-legend {
+      background: var(--bg-dark);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .level-legend-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--yellow);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .level-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .level-item .level-badge-lg {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .level-item .level-info h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .level-item .level-info p {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    .level-bg { background: rgba(57,255,20,0.2); color: var(--green); border: 2px solid var(--green); }
+    .level-n { background: rgba(255,215,0,0.2); color: var(--yellow); border: 2px solid var(--yellow); }
+    .level-s { background: rgba(255,20,147,0.2); color: var(--pink-light); border: 2px solid var(--pink); }
+    .level-p { background: rgba(0,191,255,0.2); color: var(--blue); border: 2px solid var(--blue); }
+
+    /* ===== REGISTRATION CARD ===== */
+    .card {
+      background: rgba(20, 20, 20, 0.9);
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 20px;
+      border: 2px solid rgba(255,20,147,0.4);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--pink), var(--yellow), var(--blue), var(--pink));
+      background-size: 300% 100%;
+      animation: gradientSlide 3s ease infinite;
+    }
+
+    @keyframes gradientSlide {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--yellow);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid rgba(255,20,147,0.3);
+    }
+
+    .player-count {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .count-box {
+      flex: 1;
+      background: linear-gradient(135deg, rgba(255,20,147,0.2), rgba(255,20,147,0.1));
+      border: 2px solid var(--pink);
+      color: var(--white);
+      padding: 20px;
+      border-radius: 14px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .count-box.reserve {
+      background: linear-gradient(135deg, rgba(0,191,255,0.2), rgba(0,191,255,0.1));
+      border-color: var(--blue);
+    }
+
+    .count-box .number {
+      font-size: 2.5rem;
+      font-weight: 900;
+      display: block;
+      color: var(--yellow);
+      text-shadow: 2px 2px 0 var(--pink);
+    }
+
+    .count-box.reserve .number {
+      color: var(--blue);
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .count-box .label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      font-weight: 600;
+    }
+
+    .count-box .limit {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 4px;
+      color: var(--gray);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--pink-light);
+      font-size: 1rem;
+    }
+
+    .form-group label span { color: var(--red); }
+
+    .form-group input {
+      padding: 14px 18px;
+      border: 2px solid rgba(255,20,147,0.3);
+      border-radius: 12px;
+      font-family: 'Kanit', sans-serif;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      background: var(--bg-dark);
+      color: var(--white);
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--pink);
+      box-shadow: 0 0 20px rgba(255,20,147,0.2);
+    }
+
+    .form-group input::placeholder { color: var(--gray); }
+
+    .level-select {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .level-option {
+      padding: 16px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s;
+      background: var(--bg-dark);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .level-option:hover {
+      transform: translateY(-3px);
+      border-color: var(--white);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    }
+
+    .level-option.selected {
+      border-color: var(--yellow);
+      box-shadow: 0 0 25px rgba(255,215,0,0.3);
+    }
+
+    .level-option[data-level="BG"] { border-color: rgba(57,255,20,0.3); }
+    .level-option[data-level="BG"]:hover, .level-option[data-level="BG"].selected { border-color: var(--green); box-shadow: 0 0 20px rgba(57,255,20,0.3); }
+    .level-option[data-level="BG"] .level-code { color: var(--green); }
+
+    .level-option[data-level="N"] { border-color: rgba(255,215,0,0.3); }
+    .level-option[data-level="N"]:hover, .level-option[data-level="N"].selected { border-color: var(--yellow); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+    .level-option[data-level="N"] .level-code { color: var(--yellow); }
+
+    .level-option[data-level="S"] { border-color: rgba(255,20,147,0.3); }
+    .level-option[data-level="S"]:hover, .level-option[data-level="S"].selected { border-color: var(--pink); box-shadow: 0 0 20px rgba(255,20,147,0.3); }
+    .level-option[data-level="S"] .level-code { color: var(--pink); }
+
+    .level-option[data-level="P"] { border-color: rgba(0,191,255,0.3); }
+    .level-option[data-level="P"]:hover, .level-option[data-level="P"].selected { border-color: var(--blue); box-shadow: 0 0 20px rgba(0,191,255,0.3); }
+    .level-option[data-level="P"] .level-code { color: var(--blue); }
+
+    .level-option .level-code {
+      font-size: 2rem;
+      font-weight: 900;
+      display: block;
+      margin-bottom: 6px;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .level-option .level-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .level-option .level-icon {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .btn {
+      padding: 16px 36px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Kanit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+      justify-content: center;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn:hover::after { left: 100%; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      color: var(--white);
+      border: 2px solid var(--yellow);
+      box-shadow: 0 5px 25px rgba(255,20,147,0.4);
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 35px rgba(255,20,147,0.6);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--green), #2eb82e);
+      color: var(--bg-black);
+      border: 2px solid var(--white);
+      box-shadow: 0 5px 25px rgba(57,255,20,0.3);
+    }
+
+    .btn-success:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 35px rgba(57,255,20,0.5);
+    }
+
+    .btn-admin {
+      background: linear-gradient(135deg, var(--orange), #ff6b00);
+      color: var(--white);
+      border: 2px solid var(--yellow);
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn-admin:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 35px rgba(255,140,0,0.5);
+    }
+
+    .text-center { text-align: center; }
+
+    /* ===== PLAYER LIST ===== */
+    .player-list-section {
+      background: rgba(20, 20, 20, 0.9);
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 20px;
+      border: 2px solid rgba(0,191,255,0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .player-list-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue), var(--green), var(--yellow), var(--blue));
+      background-size: 300% 100%;
+      animation: gradientSlide 3s ease infinite;
+    }
+
+    .player-list { display: grid; gap: 10px; }
+
+    .player-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: var(--bg-dark);
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.1);
+      transition: all 0.3s;
+    }
+
+    .player-item:hover {
+      border-color: var(--pink);
+      transform: translateX(5px);
+      box-shadow: 0 5px 15px rgba(255,20,147,0.2);
+    }
+
+    .player-item.reserve-item {
+      border-color: rgba(0,191,255,0.3);
+      background: linear-gradient(135deg, rgba(0,191,255,0.1), var(--bg-dark));
+    }
+
+    .player-item.reserve-item:hover {
+      border-color: var(--blue);
+      box-shadow: 0 5px 15px rgba(0,191,255,0.2);
+    }
+
+    .player-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .player-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.1rem;
+      border: 2px solid var(--yellow);
+      box-shadow: 0 0 10px rgba(255,20,147,0.3);
+      flex-shrink: 0;
+    }
+
+    .player-details h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .player-details p {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .level-badge {
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 2px solid;
+      flex-shrink: 0;
+    }
+
+    .level-bg { background: rgba(57,255,20,0.2); color: var(--green); border-color: var(--green); }
+    .level-n { background: rgba(255,215,0,0.2); color: var(--yellow); border-color: var(--yellow); }
+    .level-s { background: rgba(255,20,147,0.2); color: var(--pink-light); border-color: var(--pink); }
+    .level-p { background: rgba(0,191,255,0.2); color: var(--blue); border-color: var(--blue); }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .status-main { background: rgba(255,20,147,0.2); color: var(--pink-light); border: 1px solid var(--pink); }
+    .status-reserve { background: rgba(0,191,255,0.2); color: var(--blue); border: 1px solid var(--blue); }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--gray);
+      font-size: 1.1rem;
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: var(--bg-dark);
+      color: var(--white);
+      padding: 16px 30px;
+      border-radius: 12px;
+      font-weight: 700;
+      z-index: 2000;
+      opacity: 0;
+      transition: all 0.4s ease;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      border: 2px solid var(--pink);
+      font-size: 1rem;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+    .toast.warning { border-color: var(--orange); color: var(--orange); }
+
+    /* ===== ANIMATIONS ===== */
+    .spinning-shuttle {
+      display: inline-block;
+      animation: spinShuttle 2s ease-in-out infinite;
+    }
+
+    @keyframes spinShuttle {
+      0%, 100% { transform: rotate(-15deg); }
+      50% { transform: rotate(15deg); }
+    }
+
+    .glow-text {
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px var(--pink), 0 0 20px var(--pink); }
+      to { text-shadow: 0 0 20px var(--pink), 0 0 30px var(--pink), 0 0 40px var(--yellow); }
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--gray);
+      font-size: 0.85rem;
+      margin-top: 10px;
+    }
+
+    .footer a {
+      color: var(--pink-light);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer a:hover {
+      color: var(--yellow);
+    }
+
+    @media (max-width: 600px) {
+      .poster-header h1 { font-size: 2.2rem; }
+      .info-grid { grid-template-columns: 1fr 1fr; }
+      .level-select { grid-template-columns: 1fr 1fr; }
+      .level-grid { grid-template-columns: 1fr; }
+      .count-box .number { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-poster"></div>
+
+  <div class="container">
+    <!-- HEADER -->
+    <div class="poster-header">
+      <div class="logo-badge">🏸 แบดมินตัน | 3 คอร์ท | 22 คนต่อวัน</div>
+      <h1><span class="spinning-shuttle">🏸</span> ก๊วนเก๋าTeen</h1>
+      <p class="subtitle">ระบบจัดการก๊วนตีแบดมินตันอัจฉริยะ</p>
+    </div>
+
+    <!-- INFO CARDS -->
+    <div class="info-grid">
+      <div class="info-card time-card">
+        <div class="icon">🕕</div>
+        <div class="label">เวลา</div>
+        <div class="value">18:00 - 20:00</div>
+      </div>
+      <div class="info-card court-card">
+        <div class="icon">🏟️</div>
+        <div class="label">สนาม</div>
+        <div class="value">3 คอร์ท</div>
+      </div>
+      <div class="info-card people-card">
+        <div class="icon">👥</div>
+        <div class="label">จำกัด</div>
+        <div class="value">18 + 4 สำรอง</div>
+      </div>
+      <div class="info-card price-card">
+        <div class="icon">💰</div>
+        <div class="label">ค่าใช้จ่าย</div>
+        <div class="value">LINE: 90฿</div>
+      </div>
+    </div>
+
+    <!-- RULES -->
+    <div class="rules-section">
+      <p>• หากต้องการถอนตัว ต้องถอนตัวก่อนเวลา <strong>12:00 น.</strong> ของวันที่จะไปเล่น</p>
+      <p>• จำกัดผู้เล่นหลัก <strong>18</strong> คน | สำรอง <strong>4</strong> คน เท่านั้น</p>
+      <p>• กรุณาเช็คชื่อเมื่อถึงสนาม</p>
+    </div>
+
+    <!-- LEVEL LEGEND -->
+    <div class="level-legend">
+      <div class="level-legend-title">📊 ระดับการเล่น</div>
+      <div class="level-grid">
+        <div class="level-item">
+          <div class="level-badge-lg level-bg">BG</div>
+          <div class="level-info">
+            <h4 style="color: var(--green);">Beginner</h4>
+            <p>🌱 มือใหม่หัดเล่น</p>
+          </div>
+        </div>
+        <div class="level-item">
+          <div class="level-badge-lg level-n">N</div>
+          <div class="level-info">
+            <h4 style="color: var(--yellow);">Newbie</h4>
+            <p>⭐ เล่นเป็นระดับหนึ่ง</p>
+          </div>
+        </div>
+        <div class="level-item">
+          <div class="level-badge-lg level-s">S</div>
+          <div class="level-info">
+            <h4 style="color: var(--pink-light);">Starter</h4>
+            <p>🎯 ระดับกลางๆ</p>
+          </div>
+        </div>
+        <div class="level-item">
+          <div class="level-badge-lg level-p">P</div>
+          <div class="level-info">
+            <h4 style="color: var(--blue);">Pre-Pro</h4>
+            <p>👑 ระดับสูง</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTRATION FORM -->
+    <div class="card">
+      <div class="card-title">📝 ลงชื่อเข้าร่วมเล่น</div>
+
+      <div class="player-count">
+        <div class="count-box">
+          <span class="number" id="mainCount">0</span>
+          <span class="label">ผู้เล่นหลัก</span>
+          <span class="limit">/ <span id="maxMainLabel">18</span> คน</span>
+        </div>
+        <div class="count-box reserve">
+          <span class="number" id="reserveCount">0</span>
+          <span class="label">สำรอง</span>
+          <span class="limit">/ 4 คน</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ชื่อ <span>*</span></label>
+        <input type="text" id="regName" placeholder="กรอกชื่อของคุณ">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 22px;">
+        <label>ระดับการเล่น <span>*</span> (กดเลือก)</label>
+        <div class="level-select">
+          <div class="level-option" data-level="BG" onclick="selectLevel('BG')">
+            <div class="level-icon">🌱</div>
+            <span class="level-code">BG</span>
+            <span class="level-name">Beginner</span>
+          </div>
+          <div class="level-option" data-level="N" onclick="selectLevel('N')">
+            <div class="level-icon">⭐</div>
+            <span class="level-code">N</span>
+            <span class="level-name">Newbie</span>
+          </div>
+          <div class="level-option" data-level="S" onclick="selectLevel('S')">
+            <div class="level-icon">🎯</div>
+            <span class="level-code">S</span>
+            <span class="level-name">Starter</span>
+          </div>
+          <div class="level-option" data-level="P" onclick="selectLevel('P')">
+            <div class="level-icon">👑</div>
+            <span class="level-code">P</span>
+            <span class="level-name">Pre-Pro</span>
+          </div>
+        </div>
+        <input type="hidden" id="regLevel" value="">
+      </div>
+
+      <div class="text-center">
+        <button class="btn btn-primary" onclick="registerPlayer()">
+          <span>🏸</span> ลงชื่อเล่น
+        </button>
+      </div>
+    </div>
+
+    <!-- PLAYER LIST -->
+    <div class="player-list-section">
+      <div class="card-title">👥 รายชื่อผู้เล่นที่ลงชื่อ</div>
+      <div class="player-count" style="margin-bottom: 18px;">
+        <div class="count-box">
+          <span class="number" id="mainCount2">0</span>
+          <span class="label">ผู้เล่นหลัก</span>
+          <span class="limit">/ <span id="maxMainLabel2">18</span> คน</span>
+        </div>
+        <div class="count-box reserve">
+          <span class="number" id="reserveCount2">0</span>
+          <span class="label">สำรอง</span>
+          <span class="limit">/ 4 คน</span>
+        </div>
+      </div>
+      <div id="playerList" class="player-list"></div>
+    </div>
+
+    <!-- ADMIN LINK -->
+    <div class="text-center" style="margin-bottom: 20px;">
+      <a href="admin.html" style="text-decoration: none;">
+        <button class="btn btn-admin">
+          <span>🔐</span> เข้าสู่ระบบแอดมิน
+        </button>
+      </a>
+    </div>
+
+    <div class="footer">
+      <p>🏸 ก๊วนเก๋าTeen - แบดมินตันกลุ่มเพื่อน</p>
+      <p style="margin-top: 4px; font-size: 0.75rem;">หากพบปัญหา ติดต่อแอดมิน</p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const MAX_MAIN = 18;
+    const MAX_RESERVE = 4;
+    const LEVEL_NAMES = { 'BG': 'Beginner', 'N': 'Newbie', 'S': 'Starter', 'P': 'Pre-Pro' };
+    const LEVEL_COLORS = { 'BG': 'level-bg', 'N': 'level-n', 'S': 'level-s', 'P': 'level-p' };
+
+    let players = JSON.parse(localStorage.getItem('gwPlayers')) || [];
+    let mainRegistrationOpen = JSON.parse(localStorage.getItem('gwMainOpen')) !== false;
+    let currentMaxMain = parseInt(localStorage.getItem('gwMaxMain')) || MAX_MAIN;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      updateMaxMainDisplay();
+      updateCounts();
+      renderPlayerList();
+    });
+
+    function updateMaxMainDisplay() {
+      document.getElementById('maxMainLabel').textContent = currentMaxMain;
+      document.getElementById('maxMainLabel2').textContent = currentMaxMain;
+    }
+
+    function selectLevel(level) {
+      document.querySelectorAll('.level-option').forEach(el => el.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+      document.getElementById('regLevel').value = level;
+    }
+
+    function registerPlayer() {
+      const name = document.getElementById('regName').value.trim();
+      const level = document.getElementById('regLevel').value;
+
+      if (!name || !level) {
+        showToast('กรุณากรอกชื่อและเลือกระดับการเล่น', 'error');
+        return;
+      }
+
+      const mainPlayers = players.filter(p => !p.isReserve);
+      const reservePlayers = players.filter(p => p.isReserve);
+
+      let isReserve = false;
+      if (!mainRegistrationOpen) {
+        isReserve = true;
+      } else if (mainPlayers.length >= currentMaxMain) {
+        isReserve = true;
+      }
+
+      if (isReserve && reservePlayers.length >= MAX_RESERVE) {
+        showToast('ผู้เล่นสำรองเต็มแล้ว (4 คน)', 'error');
+        return;
+      }
+
+      if (!isReserve && mainPlayers.length >= currentMaxMain) {
+        showToast('ผู้เล่นหลักเต็มแล้ว (' + currentMaxMain + ' คน)', 'error');
+        return;
+      }
+
+      const player = {
+        id: Date.now(),
+        name,
+        level,
+        isReserve,
+        registeredAt: new Date().toISOString(),
+        checkedIn: false
+      };
+
+      players.push(player);
+      saveData();
+      updateCounts();
+      renderPlayerList();
+
+      document.getElementById('regName').value = '';
+      document.getElementById('regLevel').value = '';
+      document.querySelectorAll('.level-option').forEach(el => el.classList.remove('selected'));
+
+      if (isReserve) {
+        showToast('🔒 คุณอยู่ลำดับสำรองที่ ' + (reservePlayers.length + 1), 'warning');
+      } else {
+        showToast('✅ ลงชื่อสำเร็จ! ยินดีต้อนรับสู่ก๊วนเก๋าTeen', 'success');
+      }
+    }
+
+    function renderPlayerList() {
+      const main = players.filter(p => !p.isReserve);
+      const reserve = players.filter(p => p.isReserve);
+
+      document.getElementById('mainCount').textContent = main.length;
+      document.getElementById('mainCount2').textContent = main.length;
+      document.getElementById('reserveCount').textContent = reserve.length;
+      document.getElementById('reserveCount2').textContent = reserve.length;
+
+      const list = document.getElementById('playerList');
+      let html = '';
+
+      if (main.length > 0) {
+        html += '<h3 style="color:var(--yellow);margin-bottom:10px;font-size:1.1rem;font-weight:700;">👥 ผู้เล่นหลัก (' + main.length + '/' + currentMaxMain + ')</h3>';
+        html += main.map((p, i) => renderPlayerItem(p, i + 1)).join('');
+      }
+      if (reserve.length > 0) {
+        html += '<h3 style="color:var(--blue);margin:20px 0 10px;font-size:1.1rem;font-weight:700;">⭐ ผู้เล่นสำรอง (' + reserve.length + '/' + MAX_RESERVE + ')</h3>';
+        html += reserve.map((p, i) => renderPlayerItem(p, i + 1, true)).join('');
+      }
+      if (players.length === 0) {
+        html = '<div class="empty-state">ยังไม่มีผู้เล่นลงชื่อ<br>📝 กรุณาลงชื่อด้านบน</div>';
+      }
+      list.innerHTML = html;
+    }
+
+    function renderPlayerItem(player, index, isReserve = false) {
+      return `
+        <div class="player-item ${isReserve ? 'reserve-item' : ''}">
+          <div class="player-info">
+            <div class="player-avatar">${player.name.charAt(0)}</div>
+            <div class="player-details">
+              <h4>${index}. ${player.name}</h4>
+              <p>${LEVEL_NAMES[player.level] || player.level}</p>
+            </div>
+            <span class="level-badge ${LEVEL_COLORS[player.level] || 'level-n'}">${player.level}</span>
+          </div>
+          <span class="status-badge ${isReserve ? 'status-reserve' : 'status-main'}">${isReserve ? 'สำรอง' : 'หลัก'}</span>
+        </div>
+      `;
+    }
+
+    function updateCounts() {
+      const main = players.filter(p => !p.isReserve).length;
+      const reserve = players.filter(p => p.isReserve).length;
+      document.getElementById('mainCount').textContent = main;
+      document.getElementById('mainCount2').textContent = main;
+      document.getElementById('reserveCount').textContent = reserve;
+      document.getElementById('reserveCount2').textContent = reserve;
+    }
+
+    function saveData() {
+      localStorage.setItem('gwPlayers', JSON.stringify(players));
+      localStorage.setItem('gwMainOpen', JSON.stringify(mainRegistrationOpen));
+      localStorage.setItem('gwMaxMain', currentMaxMain);
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      requestAnimationFrame(() => { toast.classList.add('show'); });
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+  </script>
+</body>
+</html>
